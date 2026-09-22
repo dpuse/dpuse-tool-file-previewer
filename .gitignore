@@ -2,7 +2,6 @@
 .dev.vars
 .env*
 .eslintcache
-.npmrc
 .wrangler
 coverage
 dist-scripts
