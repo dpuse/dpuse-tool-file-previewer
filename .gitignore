@@ -23,3 +23,8 @@ rust/target
 __screenshots__/
 test-results/
 playwright-report/
+
+# VitePress
+site/kb/
+site/.vitepress/cache
+site/.vitepress/dist
