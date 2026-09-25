@@ -5,10 +5,10 @@ import { fileTypeFromBuffer, type FileTypeResult } from 'file-type';
 // ── DPUse Framework
 import { buildFetchError } from '@dpuse/dpuse-shared/errors';
 import type { DataFormatId } from '@dpuse/dpuse-shared/component/dataView';
-import type { EncodingConfig } from '@dpuse/dpuse-shared/encoding';
+import type { EncodingDetectionConfig } from '@dpuse/dpuse-shared/encoding';
 
 // ── Data
-import { encodingConfigMap } from '@dpuse/dpuse-shared/encoding';
+import { isEncodingTypeId } from '@dpuse/dpuse-shared/encoding';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -25,7 +25,7 @@ export interface FilePreviewResult {
 
 const DEFAULT_PREVIEW_CHUNK_SIZE = 4096;
 
-const FALLBACK_ENCODING: EncodingConfig = { id: 'utf8', confidenceLevel: undefined };
+const FALLBACK_ENCODING: EncodingDetectionConfig = { id: 'utf-8', confidenceLevel: undefined };
 
 const FILE_TYPE_MAP: Record<string, { label: string; isAutoDetectable: boolean; isSupported: boolean; magicBytes?: number[]; notes: string }> = {
     arrow: { label: 'Columnar format for tables of data.', isAutoDetectable: true, isSupported: false, notes: '' },
@@ -121,21 +121,20 @@ async function previewFileBytes(fileBytes: Uint8Array): Promise<FilePreviewResul
 /**
  * Determine encoding from file bytes.
  */
-function determineEncoding(fileBytes: Uint8Array): EncodingConfig {
-    if (fileBytes[0] === 239 && fileBytes[1] === 187 && fileBytes[2] === 191) return { confidenceLevel: 100, id: 'utf8' };
+function determineEncoding(fileBytes: Uint8Array): EncodingDetectionConfig {
+    if (fileBytes[0] === 239 && fileBytes[1] === 187 && fileBytes[2] === 191) return { confidenceLevel: 100, id: 'utf-8' };
     if (fileBytes[0] === 254 && fileBytes[1] === 255) return { confidenceLevel: 100, id: 'utf-16be' };
     if (fileBytes[0] === 255 && fileBytes[1] === 254) return { confidenceLevel: 100, id: 'utf-16le' };
     const detectedEncodings = chardet.analyse(fileBytes);
-    const detectedEncoding = detectedEncodings[0] ?? { confidence: undefined, name: 'utf8' };
-    const encoding = encodingConfigMap[detectedEncoding.name.toLowerCase()];
-    const encodingId = encoding == null ? 'utf8' : encoding.id;
-    return { confidenceLevel: detectedEncoding.confidence, id: encodingId };
+    const detectedEncoding = detectedEncodings[0] ?? { confidence: undefined, name: 'utf-8' };
+    const detectedName = detectedEncoding.name.toLowerCase();
+    return { confidenceLevel: detectedEncoding.confidence, id: isEncodingTypeId(detectedName) ? detectedName : 'utf-8' };
 }
 
 /**
  * Decode file bytes to text.
  */
-function decodeFileBytes(fileBytes: Uint8Array, encoding: EncodingConfig): { encoding: EncodingConfig; text: string } {
+function decodeFileBytes(fileBytes: Uint8Array, encoding: EncodingDetectionConfig): { encoding: EncodingDetectionConfig; text: string } {
     try {
         const text = new TextDecoder(encoding.id).decode(truncateData(fileBytes));
         return { encoding, text };
