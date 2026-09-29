@@ -3,12 +3,10 @@ import chardet from 'chardet';
 import { fileTypeFromBuffer, type FileTypeResult } from 'file-type';
 
 // ── DPUse Framework
-import { buildFetchError } from '@dpuse/dpuse-shared/errors';
-import type { DataFormatId } from '@dpuse/dpuse-shared/component/dataView';
-import type { EncodingDetectionConfig } from '@dpuse/dpuse-shared/encoding';
+import { buildFetchError, isEncodingTypeId } from '@dpuse/dpuse-shared';
+import type { DataFormatId, EncodingDetectionConfig } from '@dpuse/dpuse-shared';
 
 // ── Data
-import { isEncodingTypeId } from '@dpuse/dpuse-shared/encoding';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

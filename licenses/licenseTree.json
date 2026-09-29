@@ -1,11 +1,28 @@
 {
-  "version": "0.0.57",
+  "version": "0.0.63",
   "name": "@dpuse/dpuse-tool-file-previewer",
   "dependencies": {
     "@dpuse/dpuse-shared": {
-      "version": "0.3.760",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-0.3.760.tgz",
-      "overridden": false
+      "version": "0.3.865",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-0.3.865.tgz",
+      "overridden": false,
+      "dependencies": {
+        "file-type": {
+          "version": "22.1.1"
+        },
+        "valibot": {
+          "version": "1.5.0",
+          "resolved": "https://registry.npmjs.org/valibot/-/valibot-1.5.0.tgz",
+          "overridden": false,
+          "dependencies": {
+            "typescript": {
+              "version": "6.0.3",
+              "resolved": "https://registry.npmjs.org/typescript/-/typescript-6.0.3.tgz",
+              "overridden": false
+            }
+          }
+        }
+      }
     },
     "chardet": {
       "version": "2.2.0",
@@ -13,8 +30,8 @@
       "overridden": false
     },
     "file-type": {
-      "version": "22.0.1",
-      "resolved": "https://registry.npmjs.org/file-type/-/file-type-22.0.1.tgz",
+      "version": "22.1.1",
+      "resolved": "https://registry.npmjs.org/file-type/-/file-type-22.1.1.tgz",
       "overridden": false,
       "dependencies": {
         "@tokenizer/inflate": {

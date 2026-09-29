@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-tool-file-previewer",
-    "version": "0.0.62",
+    "version": "0.0.63",
     "private": false,
     "description": "",
     "license": "MIT",
@@ -47,40 +47,35 @@
         "esbuild@0.28.1": true,
         "fsevents@2.3.3": true,
         "unrs-resolver@1.11.1": true,
-        "workerd@1.20260923.1": true
+        "workerd@1.20260926.1": true
     },
     "scripts": {
         "audit": "node -e \"import('@dpuse/dpuse-development').then(m => m.auditDependencies())\"",
-        "build": "node -e \"import('@dpuse/dpuse-development').then(m => m.buildProject())\" && npm run documentBundleSizes",
-        "check": "node -e \"import('@dpuse/dpuse-development').then(m => m.checkConfigFiles())\" && node -e \"import('@dpuse/dpuse-development').then(m => m.checkDependencies())\"",
-        "document": "npm run documentOpening && npm run documentUsage && npm run documentDependencies && npm run documentGovernance",
-        "documentBundleSizes": "node -e \"import('@dpuse/dpuse-development').then(m => m.documentBundleSizes())\"",
-        "documentDependencies": "node -e \"import('@dpuse/dpuse-development').then(m => m.documentDependencies('BSD-3-Clause;MIT'))\"",
-        "documentGovernance": "node -e \"import('@dpuse/dpuse-development').then(m => m.documentGovernance())\"",
-        "documentOpening": "node -e \"import('@dpuse/dpuse-development').then(m => m.documentOpening())\"",
-        "documentUsage": "node -e \"import('@dpuse/dpuse-development').then(m => m.documentUsage())\"",
+        "build": "node -e \"import('@dpuse/dpuse-development').then(m => m.buildProject())\"",
+        "check": "node -e \"import('@dpuse/dpuse-development').then(m => m.checkProject())\"",
+        "document": "node -e \"import('@dpuse/dpuse-development').then(m => m.documentProject('BSD-3-Clause;MIT'))\"",
         "format": "node -e \"import('@dpuse/dpuse-development').then(m => m.formatCode())\"",
         "lint": "node -e \"import('@dpuse/dpuse-development').then(m => m.lintCode())\"",
-        "release": "op run --env-file=.env -- node -e \"import('@dpuse/dpuse-development').then(m => m.releaseProject())\"",
+        "release": "op run --env-file=.env -- node -e \"import('@dpuse/dpuse-development').then(m => m.releaseProject('BSD-3-Clause;MIT'))\"",
         "sync": "node -e \"import('@dpuse/dpuse-development').then(m => m.syncProjectWithGitHub())\"",
         "test": "node -e \"import('@dpuse/dpuse-development').then(m => m.testProject())\""
     },
     "dependencies": {
-        "@dpuse/dpuse-shared": "^0.3.826",
+        "@dpuse/dpuse-shared": "^0.3.865",
         "chardet": "^2.2.0",
         "file-type": "^22.1.1"
     },
     "devDependencies": {
-        "@dpuse/dpuse-development": "^0.3.723",
+        "@dpuse/dpuse-development": "^0.3.792",
         "@dpuse/eslint-config-dpuse": "^1.0.123",
-        "@types/node": "^26.6.2",
+        "@types/node": "^26.6.3",
         "eslint": "^10.11.0",
         "prettier": "^3.9.9",
         "sonda": "^0.14.0",
         "typescript": "^6.0.3",
         "vite": "^8.3.1",
         "vite-plugin-dts": "^5.1.1",
-        "vitest": "^5.0.1",
-        "wrangler": "^4.140.0"
+        "vitest": "^5.0.2",
+        "wrangler": "^4.143.0"
     }
 }

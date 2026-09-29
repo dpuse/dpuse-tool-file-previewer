@@ -37,6 +37,9 @@ jobs:
               with:
                   languages: ${{ matrix.language }}
                   build-mode: ${{ matrix.build-mode }}
+                  # More security queries than the default suite, some less precise. Code quality is left to ESLint, SonarCloud
+                  # and Fallow.
+                  queries: security-extended
 
             - name: Perform CodeQL Analysis
               uses: github/codeql-action/analyze@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4
