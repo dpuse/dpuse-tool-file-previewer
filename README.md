@@ -7,6 +7,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![DPUse version](https://img.shields.io/github/v/release/dpuse/dpuse-tool-file-previewer?color=f6821f&label=DPUse)](https://github.com/dpuse/dpuse-tool-file-previewer/releases/latest)
+[![npm version](https://img.shields.io/npm/v/@dpuse/dpuse-tool-file-previewer?color=cb3837&label=npm)](https://www.npmjs.com/package/@dpuse/dpuse-tool-file-previewer)
 [![CI](https://github.com/dpuse/dpuse-tool-file-previewer/actions/workflows/ci.yml/badge.svg)](https://github.com/dpuse/dpuse-tool-file-previewer/actions/workflows/ci.yml)
 
 [DPUse](https://www.dpuse.app) · [Report a Vulnerability](https://github.com/dpuse/dpuse-tool-file-previewer/security/advisories/new) · [Open an Issue](https://github.com/dpuse/dpuse-tool-file-previewer/issues)
