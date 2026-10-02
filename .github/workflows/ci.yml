@@ -48,6 +48,18 @@ jobs:
                   node-version: 24
                   cache: npm
 
+            # Only in projects with Rust code. Unpacked from a download checked against a pinned hash, as npm is above. Rust
+            # itself needs no step: the runner's 'rustup' installs the version 'rust-toolchain.toml' names on the first build.
+            # When changing the version, update the URL and take the new hash from the release's list of files on GitHub.
+            - name: Setup wasm-pack
+              if: hashFiles('rust/Cargo.toml') != ''
+              run: |
+                  curl --proto '=https' -fsSLo wasm-pack.tgz https://github.com/wasm-bindgen/wasm-pack/releases/download/v0.15.0/wasm-pack-v0.15.0-x86_64-unknown-linux-musl.tar.gz
+                  echo "c09f971ecaed9a2efc80fdcea7a00ef6b53c7fadc8c57d1f61b53a6aa66b668a  wasm-pack.tgz" | sha256sum -c -
+                  tar -xzf wasm-pack.tgz -C "$HOME/.cargo/bin" --strip-components=1 wasm-pack-v0.15.0-x86_64-unknown-linux-musl/wasm-pack
+                  wasm-pack --version
+              working-directory: ${{ runner.temp }}
+
             - name: Install dependencies
               run: npm ci --ignore-scripts
 

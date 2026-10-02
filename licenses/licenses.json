@@ -6,13 +6,13 @@
         "path": "node_modules/@borewit/text-codec",
         "licenseFile": "downloads/@borewit/text-codec@0.2.2-LICENSE.txt"
     },
-    "@dpuse/dpuse-shared@0.3.865": {
+    "@dpuse/dpuse-shared@0.3.868": {
         "licenses": "MIT",
         "repository": "https://github.com/dpuse/dpuse-shared",
         "publisher": "Jonathan Terrell",
         "email": "terrell.jm@gmail.com",
         "path": "node_modules/@dpuse/dpuse-shared",
-        "licenseFile": "downloads/@dpuse/dpuse-shared@0.3.865-LICENSE.txt"
+        "licenseFile": "downloads/@dpuse/dpuse-shared@0.3.868-LICENSE.txt"
     },
     "@tokenizer/inflate@0.4.1": {
         "licenses": "MIT",
@@ -20,13 +20,6 @@
         "publisher": "Borewit",
         "path": "node_modules/@tokenizer/inflate",
         "licenseFile": "downloads/@tokenizer/inflate@0.4.1-LICENSE.txt"
-    },
-    "@tokenizer/token@0.3.0": {
-        "licenses": "MIT",
-        "repository": "https://github.com/Borewit/tokenizer-token",
-        "publisher": "Borewit",
-        "path": "node_modules/@tokenizer/token",
-        "licenseFile": "downloads/@tokenizer/token@0.3.0-LICENSE.txt"
     },
     "chardet@2.2.0": {
         "licenses": "MIT",
@@ -50,14 +43,6 @@
         "email": "sindresorhus@gmail.com",
         "path": "node_modules/file-type",
         "licenseFile": "downloads/file-type@22.1.1-LICENSE.txt"
-    },
-    "ieee754@1.2.1": {
-        "licenses": "BSD-3-Clause",
-        "repository": "https://github.com/feross/ieee754",
-        "publisher": "Feross Aboukhadijeh",
-        "email": "feross@feross.org",
-        "path": "node_modules/ieee754",
-        "licenseFile": "downloads/ieee754@1.2.1-LICENSE.txt"
     },
     "ms@2.1.3": {
         "licenses": "MIT",

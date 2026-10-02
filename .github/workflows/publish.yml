@@ -10,7 +10,7 @@ permissions:
 
 jobs:
     publish:
-        name: Publish to npm
+        name: Publish
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
@@ -48,6 +48,18 @@ jobs:
                   cache: npm
                   registry-url: https://registry.npmjs.org
 
+            # Only in projects with Rust code. Unpacked from a download checked against a pinned hash, as npm is above. Rust
+            # itself needs no step: the runner's 'rustup' installs the version 'rust-toolchain.toml' names on the first build.
+            # When changing the version, update the URL and take the new hash from the release's list of files on GitHub.
+            - name: Setup wasm-pack
+              if: hashFiles('rust/Cargo.toml') != ''
+              run: |
+                  curl --proto '=https' -fsSLo wasm-pack.tgz https://github.com/wasm-bindgen/wasm-pack/releases/download/v0.15.0/wasm-pack-v0.15.0-x86_64-unknown-linux-musl.tar.gz
+                  echo "c09f971ecaed9a2efc80fdcea7a00ef6b53c7fadc8c57d1f61b53a6aa66b668a  wasm-pack.tgz" | sha256sum -c -
+                  tar -xzf wasm-pack.tgz -C "$HOME/.cargo/bin" --strip-components=1 wasm-pack-v0.15.0-x86_64-unknown-linux-musl/wasm-pack
+                  wasm-pack --version
+              working-directory: ${{ runner.temp }}
+
             - name: Install dependencies
               run: npm ci --ignore-scripts
 
@@ -62,5 +74,14 @@ jobs:
             - name: Test
               run: npm test
 
+            # One step for every project: the action publishes to npm, uploads to DPUse, or both, as the module type requires.
+            # Called directly rather than through a package.json script, as a script named 'publish' would be run again by
+            # 'npm publish' itself. The project's own commands, such as 'wrangler', are put on the path first, which
+            # 'npm run' would otherwise have done.
             - name: Publish
-              run: npm publish --provenance
+              run: |
+                  export PATH="$PWD/node_modules/.bin:$PATH"
+                  node -e "import('@dpuse/dpuse-development').then(m => m.publishProject())"
+              env:
+                  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+                  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
