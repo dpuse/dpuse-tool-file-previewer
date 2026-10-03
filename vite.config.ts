@@ -12,7 +12,7 @@ import config from './config.json' with { type: 'json' };
 
 // ── Vite Configuration ───────────────────────────────────────────────────────────────────────────────────────────────
 
-export default defineConfig({
+const viteConfig = defineConfig({
     build: {
         lib: {
             entry: fileURLToPath(new URL('src/index.ts', import.meta.url)),
@@ -37,3 +37,5 @@ export default defineConfig({
         }
     }
 });
+
+export default viteConfig;

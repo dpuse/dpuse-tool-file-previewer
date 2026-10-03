@@ -1,7 +1,7 @@
 {
     "packages": [
         "@borewit/text-codec@0.2.2",
-        "@dpuse/dpuse-shared@0.3.869",
+        "@dpuse/dpuse-shared@1.0.2",
         "@tokenizer/inflate@0.4.1",
         "chardet@2.2.0",
         "debug@4.4.3",

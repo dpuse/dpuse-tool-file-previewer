@@ -10,13 +10,13 @@
 [![npm version](https://img.shields.io/npm/v/@dpuse/dpuse-tool-file-previewer?color=cb3837&label=npm)](https://www.npmjs.com/package/@dpuse/dpuse-tool-file-previewer)
 [![CI](https://github.com/dpuse/dpuse-tool-file-previewer/actions/workflows/ci.yml/badge.svg)](https://github.com/dpuse/dpuse-tool-file-previewer/actions/workflows/ci.yml)
 
-[DPUse](https://www.dpuse.app) · [Report a Vulnerability](https://github.com/dpuse/dpuse-tool-file-previewer/security/advisories/new) · [Open an Issue](https://github.com/dpuse/dpuse-tool-file-previewer/issues)
-
 ...
+
+[Report a Vulnerability](https://github.com/dpuse/dpuse-tool-file-previewer/security/advisories/new) · [Open an Issue](https://github.com/dpuse/dpuse-tool-file-previewer/issues)
 
 ## About DPUse
 
-DPUse (Data Positioning & Use) is an in-browser application that positions your data for use through three core activities: sourcing, contextualising, and publishing.
+[DPUse](https://www.dpuse.app) (Data Positioning & Use) is an in-browser application that positions your data for use through three core activities: sourcing, contextualising, and publishing.
 
 **Sourcing** uses a library of [Connectors](https://www.dpuse.app/connectors) to establish [Connections](https://www.dpuse.app) to applications, databases, file stores, and curated datasets; these connections are subsequently used to configure structured [Data Views](https://www.dpuse.app) from the underlying sources.
 
@@ -62,25 +62,25 @@ This repository is managed using the common set of actions provided by [@dpuse/d
 
 License data is updated each time `npm run document` is run, using [license-checker](https://github.com/RSeidelsohn/license-checker-rseidelsohn). The following table lists every package whose code, styles or assets are included in this project's build, as recorded by the build itself. Modules loaded at run time are not included; each documents its own. These dependencies have been checked and confirmed to use MIT, all of which allow commercial use. All are used unmodified, so any licence conditions that apply only to modified versions are not triggered. Developers cloning this repository should independently verify development dependencies.
 
-| Dependency                                                             | Version | License(s) | Document                                                              |
-| :--------------------------------------------------------------------- | :-----: | :--------- | :-------------------------------------------------------------------- |
-| [@borewit/text-codec](https://github.com/Borewit/text-codec)           |  0.2.2  | MIT        | [LICENSE](licenses/downloads/@borewit/text-codec@0.2.2-LICENSE.txt)   |
-| [@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)           | 0.3.869 | MIT        | [LICENSE](licenses/downloads/@dpuse/dpuse-shared@0.3.869-LICENSE.txt) |
-| [@tokenizer/inflate](https://github.com/Borewit/tokenizer-inflate)     |  0.4.1  | MIT        | [LICENSE](licenses/downloads/@tokenizer/inflate@0.4.1-LICENSE.txt)    |
-| [chardet](https://github.com/runk/node-chardet)                        |  2.2.0  | MIT        | [LICENSE](licenses/downloads/chardet@2.2.0-LICENSE.txt)               |
-| [debug](https://github.com/debug-js/debug)                             |  4.4.3  | MIT        | [LICENSE](licenses/downloads/debug@4.4.3-LICENSE.txt)                 |
-| [file-type](https://github.com/sindresorhus/file-type)                 | 22.1.1  | MIT        | [LICENSE](licenses/downloads/file-type@22.1.1-LICENSE.txt)            |
-| [ms](https://github.com/vercel/ms)                                     |  2.1.3  | MIT        | [LICENSE](licenses/downloads/ms@2.1.3-LICENSE.txt)                    |
-| [strtok3](https://github.com/Borewit/strtok3)                          | 10.3.5  | MIT        | [LICENSE](licenses/downloads/strtok3@10.3.5-LICENSE.txt)              |
-| [token-types](https://github.com/Borewit/token-types)                  |  6.1.2  | MIT        | [LICENSE](licenses/downloads/token-types@6.1.2-LICENSE.txt)           |
-| [uint8array-extras](https://github.com/sindresorhus/uint8array-extras) |  1.5.0  | MIT        | [LICENSE](licenses/downloads/uint8array-extras@1.5.0-LICENSE.txt)     |
-| [valibot](https://github.com/open-circle/valibot)                      |  1.5.0  | MIT        | [LICENSE](licenses/downloads/valibot@1.5.0-LICENSE.txt)               |
+| Dependency                                                             | Version | License(s) | Document                                                            |
+| :--------------------------------------------------------------------- | :-----: | :--------- | :------------------------------------------------------------------ |
+| [@borewit/text-codec](https://github.com/Borewit/text-codec)           |  0.2.2  | MIT        | [LICENSE](licenses/downloads/@borewit/text-codec@0.2.2-LICENSE.txt) |
+| [@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)           |  1.0.2  | MIT        | [LICENSE](licenses/downloads/@dpuse/dpuse-shared@1.0.2-LICENSE.txt) |
+| [@tokenizer/inflate](https://github.com/Borewit/tokenizer-inflate)     |  0.4.1  | MIT        | [LICENSE](licenses/downloads/@tokenizer/inflate@0.4.1-LICENSE.txt)  |
+| [chardet](https://github.com/runk/node-chardet)                        |  2.2.0  | MIT        | [LICENSE](licenses/downloads/chardet@2.2.0-LICENSE.txt)             |
+| [debug](https://github.com/debug-js/debug)                             |  4.4.3  | MIT        | [LICENSE](licenses/downloads/debug@4.4.3-LICENSE.txt)               |
+| [file-type](https://github.com/sindresorhus/file-type)                 | 22.1.1  | MIT        | [LICENSE](licenses/downloads/file-type@22.1.1-LICENSE.txt)          |
+| [ms](https://github.com/vercel/ms)                                     |  2.1.3  | MIT        | [LICENSE](licenses/downloads/ms@2.1.3-LICENSE.txt)                  |
+| [strtok3](https://github.com/Borewit/strtok3)                          | 10.3.5  | MIT        | [LICENSE](licenses/downloads/strtok3@10.3.5-LICENSE.txt)            |
+| [token-types](https://github.com/Borewit/token-types)                  |  6.1.2  | MIT        | [LICENSE](licenses/downloads/token-types@6.1.2-LICENSE.txt)         |
+| [uint8array-extras](https://github.com/sindresorhus/uint8array-extras) |  1.5.0  | MIT        | [LICENSE](licenses/downloads/uint8array-extras@1.5.0-LICENSE.txt)   |
+| [valibot](https://github.com/open-circle/valibot)                      |  1.5.0  | MIT        | [LICENSE](licenses/downloads/valibot@1.5.0-LICENSE.txt)             |
 
 ### Dependency Tree
 
 The dependency tree below shows how each package in the table above is reached — direct and transitive — along with its installed version, release date, and update status. A package that does not ship itself, such as one whose parts are bundled separately, is left out and what ships beneath it is shown in its place. Packages flagged ❗ have a newer version available; ⚠️ indicates a package that hasn't been updated in the last 6 months or longer. Neither flag necessarily indicates a problem: we let new releases stabilise before upgrading, and some packages are mature and stable (have limited or no dependencies), so they require no active development.
 
-- **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 0.3.869 — this month: 2026-10-02
+- **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 1.0.2 — this month: 2026-10-03
     - **[file-type](https://github.com/sindresorhus/file-type)** 22.1.1 — this month: 2026-09-17
     - **[valibot](https://github.com/open-circle/valibot)** 1.5.0 — this month: 2026-09-09
 - **[chardet](https://github.com/runk/node-chardet)** 2.2.0 — **3 months** ago: 2026-06-20
