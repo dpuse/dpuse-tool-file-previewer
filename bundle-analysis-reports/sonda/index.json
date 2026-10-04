@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-10-03T14:31:56.226Z",
+    "generatedAt": "2026-10-04T11:41:10.748Z",
     "integration": "vite",
     "sources": false,
     "gzip": true,
@@ -21,7 +21,7 @@
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 35239,
+      "uncompressed": 35337,
       "gzip": 959,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
@@ -30,8 +30,8 @@
       "kind": "asset",
       "name": "dist/dpuse-tool-file-previewer.es.js",
       "type": "script",
-      "uncompressed": 175324,
-      "gzip": 39661,
+      "uncompressed": 176319,
+      "gzip": 39702,
       "brotli": 0
     },
     {
@@ -56,15 +56,15 @@
       "name": "node_modules/@dpuse/dpuse-shared/dist/dpuse-shared.es.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 33907
+      "uncompressed": 34933
     },
     {
       "kind": "chunk",
       "name": "node_modules/@dpuse/dpuse-shared/dist/dpuse-shared.es.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 13471,
-      "gzip": 3134,
+      "uncompressed": 14368,
+      "gzip": 3168,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -173,7 +173,7 @@
       "type": "script",
       "format": "cjs",
       "uncompressed": 7203,
-      "gzip": 2154,
+      "gzip": 2155,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -190,7 +190,7 @@
       "type": "script",
       "format": "cjs",
       "uncompressed": 33778,
-      "gzip": 6613,
+      "gzip": 6614,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -309,7 +309,7 @@
       "type": "script",
       "format": "cjs",
       "uncompressed": 2721,
-      "gzip": 998,
+      "gzip": 999,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -411,7 +411,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 25609,
-      "gzip": 5973,
+      "gzip": 5974,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -486,7 +486,7 @@
       "type": "script",
       "format": "cjs",
       "uncompressed": 1610,
-      "gzip": 592,
+      "gzip": 593,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },

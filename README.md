@@ -6,7 +6,7 @@
 <!-- OPENING_START -->
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![DPUse version](https://img.shields.io/github/v/release/dpuse/dpuse-tool-file-previewer?color=f6821f&label=DPUse)](https://github.com/dpuse/dpuse-tool-file-previewer/releases/latest)
+[![DPUse version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.dpuse.app%2Fconfigs%2Fdpuse-tool-file-previewer&query=%24.data.version&prefix=v&label=DPUse&color=f6821f)](https://github.com/dpuse/dpuse-tool-file-previewer/releases/latest)
 [![npm version](https://img.shields.io/npm/v/@dpuse/dpuse-tool-file-previewer?color=cb3837&label=npm)](https://www.npmjs.com/package/@dpuse/dpuse-tool-file-previewer)
 [![CI](https://github.com/dpuse/dpuse-tool-file-previewer/actions/workflows/ci.yml/badge.svg)](https://github.com/dpuse/dpuse-tool-file-previewer/actions/workflows/ci.yml)
 
@@ -62,36 +62,36 @@ This repository is managed using the common set of actions provided by [@dpuse/d
 
 License data is updated each time `npm run document` is run, using [license-checker](https://github.com/RSeidelsohn/license-checker-rseidelsohn). The following table lists every package whose code, styles or assets are included in this project's build, as recorded by the build itself. Modules loaded at run time are not included; each documents its own. These dependencies have been checked and confirmed to use MIT, all of which allow commercial use. All are used unmodified, so any licence conditions that apply only to modified versions are not triggered. Developers cloning this repository should independently verify development dependencies.
 
-| Dependency                                                             | Version | License(s) | Document                                                            |
-| :--------------------------------------------------------------------- | :-----: | :--------- | :------------------------------------------------------------------ |
-| [@borewit/text-codec](https://github.com/Borewit/text-codec)           |  0.2.2  | MIT        | [LICENSE](licenses/downloads/@borewit/text-codec@0.2.2-LICENSE.txt) |
-| [@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)           |  1.0.2  | MIT        | [LICENSE](licenses/downloads/@dpuse/dpuse-shared@1.0.2-LICENSE.txt) |
-| [@tokenizer/inflate](https://github.com/Borewit/tokenizer-inflate)     |  0.4.1  | MIT        | [LICENSE](licenses/downloads/@tokenizer/inflate@0.4.1-LICENSE.txt)  |
-| [chardet](https://github.com/runk/node-chardet)                        |  2.2.0  | MIT        | [LICENSE](licenses/downloads/chardet@2.2.0-LICENSE.txt)             |
-| [debug](https://github.com/debug-js/debug)                             |  4.4.3  | MIT        | [LICENSE](licenses/downloads/debug@4.4.3-LICENSE.txt)               |
-| [file-type](https://github.com/sindresorhus/file-type)                 | 22.1.1  | MIT        | [LICENSE](licenses/downloads/file-type@22.1.1-LICENSE.txt)          |
-| [ms](https://github.com/vercel/ms)                                     |  2.1.3  | MIT        | [LICENSE](licenses/downloads/ms@2.1.3-LICENSE.txt)                  |
-| [strtok3](https://github.com/Borewit/strtok3)                          | 10.3.5  | MIT        | [LICENSE](licenses/downloads/strtok3@10.3.5-LICENSE.txt)            |
-| [token-types](https://github.com/Borewit/token-types)                  |  6.1.2  | MIT        | [LICENSE](licenses/downloads/token-types@6.1.2-LICENSE.txt)         |
-| [uint8array-extras](https://github.com/sindresorhus/uint8array-extras) |  1.5.0  | MIT        | [LICENSE](licenses/downloads/uint8array-extras@1.5.0-LICENSE.txt)   |
-| [valibot](https://github.com/open-circle/valibot)                      |  1.5.0  | MIT        | [LICENSE](licenses/downloads/valibot@1.5.0-LICENSE.txt)             |
+| Dependency                                                             | Version | License(s) | Document                                                              |
+| :--------------------------------------------------------------------- | :-----: | :--------- | :-------------------------------------------------------------------- |
+| [@borewit/text-codec](https://github.com/Borewit/text-codec)           |  0.2.2  | MIT        | [LICENSE](licenses/downloads/@borewit/text-codec@0.2.2-LICENSE.txt)   |
+| [@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)           | 1.0.106 | MIT        | [LICENSE](licenses/downloads/@dpuse/dpuse-shared@1.0.106-LICENSE.txt) |
+| [@tokenizer/inflate](https://github.com/Borewit/tokenizer-inflate)     |  0.4.1  | MIT        | [LICENSE](licenses/downloads/@tokenizer/inflate@0.4.1-LICENSE.txt)    |
+| [chardet](https://github.com/runk/node-chardet)                        |  2.2.0  | MIT        | [LICENSE](licenses/downloads/chardet@2.2.0-LICENSE.txt)               |
+| [debug](https://github.com/debug-js/debug)                             |  4.4.3  | MIT        | [LICENSE](licenses/downloads/debug@4.4.3-LICENSE.txt)                 |
+| [file-type](https://github.com/sindresorhus/file-type)                 | 22.1.1  | MIT        | [LICENSE](licenses/downloads/file-type@22.1.1-LICENSE.txt)            |
+| [ms](https://github.com/vercel/ms)                                     |  2.1.3  | MIT        | [LICENSE](licenses/downloads/ms@2.1.3-LICENSE.txt)                    |
+| [strtok3](https://github.com/Borewit/strtok3)                          | 10.3.5  | MIT        | [LICENSE](licenses/downloads/strtok3@10.3.5-LICENSE.txt)              |
+| [token-types](https://github.com/Borewit/token-types)                  |  6.1.2  | MIT        | [LICENSE](licenses/downloads/token-types@6.1.2-LICENSE.txt)           |
+| [uint8array-extras](https://github.com/sindresorhus/uint8array-extras) |  1.5.0  | MIT        | [LICENSE](licenses/downloads/uint8array-extras@1.5.0-LICENSE.txt)     |
+| [valibot](https://github.com/open-circle/valibot)                      |  1.5.0  | MIT        | [LICENSE](licenses/downloads/valibot@1.5.0-LICENSE.txt)               |
 
 ### Dependency Tree
 
 The dependency tree below shows how each package in the table above is reached — direct and transitive — along with its installed version, release date, and update status. A package that does not ship itself, such as one whose parts are bundled separately, is left out and what ships beneath it is shown in its place. Packages flagged ❗ have a newer version available; ⚠️ indicates a package that hasn't been updated in the last 6 months or longer. Neither flag necessarily indicates a problem: we let new releases stabilise before upgrading, and some packages are mature and stable (have limited or no dependencies), so they require no active development.
 
-- **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 1.0.2 — this month: 2026-10-03
+- **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 1.0.106 — this month: 2026-10-04
     - **[file-type](https://github.com/sindresorhus/file-type)** 22.1.1 — this month: 2026-09-17
     - **[valibot](https://github.com/open-circle/valibot)** 1.5.0 — this month: 2026-09-09
-- **[chardet](https://github.com/runk/node-chardet)** 2.2.0 — **3 months** ago: 2026-06-20
+- **[chardet](https://github.com/runk/node-chardet)** 2.2.0 — 3 mths ago: 2026-06-20
 - **[file-type](https://github.com/sindresorhus/file-type)** 22.1.1 — this month: 2026-09-17
-    - **[@tokenizer/inflate](https://github.com/Borewit/tokenizer-inflate)** 0.4.1 — **10 months** ago: 2025-11-18 ⚠️
-        - **[debug](https://github.com/debug-js/debug)** 4.4.3 — **12 months** ago: 2025-09-13 ⚠️
-        - **[token-types](https://github.com/Borewit/token-types)** 6.1.2 — **9 months** ago: 2026-01-01 ⚠️
-    - **[strtok3](https://github.com/Borewit/strtok3)** 10.3.5 — **6 months** ago: 2026-03-21
-    - **[token-types](https://github.com/Borewit/token-types)** 6.1.2 — **9 months** ago: 2026-01-01 ⚠️
-        - **[@borewit/text-codec](https://github.com/Borewit/text-codec)** 0.2.2 — **6 months** ago: 2026-03-11
-    - **[uint8array-extras](https://github.com/sindresorhus/uint8array-extras)** 1.5.0 — **13 months** ago: 2025-08-22 ⚠️ → **latest**: 1.6.0 — this month: 2026-09-26 ❗
+    - **[@tokenizer/inflate](https://github.com/Borewit/tokenizer-inflate)** 0.4.1 — 10 mths ago: 2025-11-18 ⚠️
+        - **[debug](https://github.com/debug-js/debug)** 4.4.3 — 12 mths ago: 2025-09-13 ⚠️
+        - **[token-types](https://github.com/Borewit/token-types)** 6.1.2 — 9 mths ago: 2026-01-01 ⚠️
+    - **[strtok3](https://github.com/Borewit/strtok3)** 10.3.5 — 6 mths ago: 2026-03-21
+    - **[token-types](https://github.com/Borewit/token-types)** 6.1.2 — 9 mths ago: 2026-01-01 ⚠️
+        - **[@borewit/text-codec](https://github.com/Borewit/text-codec)** 0.2.2 — 6 mths ago: 2026-03-11
+    - **[uint8array-extras](https://github.com/sindresorhus/uint8array-extras)** 1.5.0 — 13 mths ago: 2025-08-22 ⚠️ → latest: 1.6.0 — this month: 2026-09-26 ❗
 
 <!-- DEPENDENCY_LICENSES_END -->
 
@@ -105,30 +105,30 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 | Chunk/Module/File                                                         | Composition                                   |
 | :------------------------------------------------------------------------ | :-------------------------------------------- |
-| **dist/dpuse-tool-file-previewer.es.js**                                  | 171.2 kB · gzip 38.7 kB · 100.0% of the build |
-| &nbsp;&nbsp;&nbsp;&nbsp;chardet                                           | `██████░░░░░░░░░░░░░░` 28.2% · 48.3 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ lib/encoding/sbcs.js    | `▒▒▒▒░░░░░░░░░░░░░░░░` 19.3% · 33.0 kB        |
+| **dist/dpuse-tool-file-previewer.es.js**                                  | 172.2 kB · gzip 38.8 kB · 100.0% of the build |
+| &nbsp;&nbsp;&nbsp;&nbsp;chardet                                           | `██████░░░░░░░░░░░░░░` 28.0% · 48.3 kB        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ lib/encoding/sbcs.js    | `▒▒▒▒░░░░░░░░░░░░░░░░` 19.2% · 33.0 kB        |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ lib/encoding/mbcs.js    | `▒░░░░░░░░░░░░░░░░░░░` 4.1% · 7.0 kB          |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 8 smaller files         | `▒░░░░░░░░░░░░░░░░░░░` 4.8% · 8.3 kB          |
-| &nbsp;&nbsp;&nbsp;&nbsp;file-type                                         | `█████░░░░░░░░░░░░░░░` 26.6% · 45.5 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ source/index.js         | `▒▒▒░░░░░░░░░░░░░░░░░` 14.6% · 25.0 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ source/detectors/zip.js | `▒░░░░░░░░░░░░░░░░░░░` 6.3% · 10.7 kB         |
+| &nbsp;&nbsp;&nbsp;&nbsp;file-type                                         | `█████░░░░░░░░░░░░░░░` 26.4% · 45.5 kB        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ source/index.js         | `▒▒▒░░░░░░░░░░░░░░░░░` 14.5% · 25.0 kB        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ source/detectors/zip.js | `▒░░░░░░░░░░░░░░░░░░░` 6.2% · 10.7 kB         |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ source/supported.js     | `▒░░░░░░░░░░░░░░░░░░░` 2.8% · 4.8 kB          |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 5 smaller files         | `▒░░░░░░░░░░░░░░░░░░░` 2.9% · 5.0 kB          |
-| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js     | `██░░░░░░░░░░░░░░░░░░` 7.7% · 13.2 kB         |
+| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js     | `██░░░░░░░░░░░░░░░░░░` 8.1% · 14.0 kB         |
 | &nbsp;&nbsp;&nbsp;&nbsp;strtok3                                           | `█░░░░░░░░░░░░░░░░░░░` 4.1% · 7.0 kB          |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 11 smaller files        | `▒░░░░░░░░░░░░░░░░░░░` 4.1% · 7.0 kB          |
 | &nbsp;&nbsp;&nbsp;&nbsp;@tokenizer/inflate                                | `█░░░░░░░░░░░░░░░░░░░` 3.8% · 6.5 kB          |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ lib/ZipHandler.js       | `▒░░░░░░░░░░░░░░░░░░░` 2.9% · 4.9 kB          |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 2 smaller files         | `░░░░░░░░░░░░░░░░░░░░` 0.9% · 1.6 kB          |
-| &nbsp;&nbsp;&nbsp;&nbsp;debug                                             | `█░░░░░░░░░░░░░░░░░░░` 3.0% · 5.1 kB          |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 2 smaller files         | `▒░░░░░░░░░░░░░░░░░░░` 3.0% · 5.1 kB          |
+| &nbsp;&nbsp;&nbsp;&nbsp;debug                                             | `█░░░░░░░░░░░░░░░░░░░` 2.9% · 5.1 kB          |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 2 smaller files         | `▒░░░░░░░░░░░░░░░░░░░` 2.9% · 5.1 kB          |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                    | `█░░░░░░░░░░░░░░░░░░░` 2.6% · 4.4 kB          |
-| &nbsp;&nbsp;&nbsp;&nbsp;@borewit/text-codec → lib/index.js                | `░░░░░░░░░░░░░░░░░░░░` 2.0% · 3.4 kB          |
+| &nbsp;&nbsp;&nbsp;&nbsp;@borewit/text-codec → lib/index.js                | `░░░░░░░░░░░░░░░░░░░░` 1.9% · 3.4 kB          |
 | &nbsp;&nbsp;&nbsp;&nbsp;ms → index.js                                     | `░░░░░░░░░░░░░░░░░░░░` 0.9% · 1.6 kB          |
 | &nbsp;&nbsp;&nbsp;&nbsp;token-types → lib/index.js                        | `░░░░░░░░░░░░░░░░░░░░` 0.6% · 1017 B          |
 | &nbsp;&nbsp;&nbsp;&nbsp;uint8array-extras → index.js                      | `░░░░░░░░░░░░░░░░░░░░` 0.6% · 987 B           |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)               | `████░░░░░░░░░░░░░░░░` 20.1% · 34.4 kB        |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)               | `████░░░░░░░░░░░░░░░░` 20.0% · 34.5 kB        |
 
 Bars show each row's share of its output file. ↳ rows are part of the row above.
 
