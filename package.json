@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-tool-file-previewer",
-    "version": "1.0.104",
+    "version": "1.0.105",
     "private": false,
     "description": "...",
     "license": "MIT",
@@ -53,7 +53,7 @@
         "audit": "node -e \"import('@dpuse/dpuse-development').then(m => m.auditDependencies())\"",
         "build": "node -e \"import('@dpuse/dpuse-development').then(m => m.buildProject())\"",
         "check": "node -e \"import('@dpuse/dpuse-development').then(m => m.checkProject())\"",
-        "document": "node -e \"import('@dpuse/dpuse-development').then(m => m.documentProject('MIT'))\"",
+        "document": "node -e \"import('@dpuse/dpuse-development').then(m => m.documentProject('0BSD;MIT'))\"",
         "format": "node -e \"import('@dpuse/dpuse-development').then(m => m.formatCode())\"",
         "lint": "node -e \"import('@dpuse/dpuse-development').then(m => m.lintCode())\"",
         "release": "npm run build && npm run document && npm run sync && node -e \"import('@dpuse/dpuse-development').then(m => m.triggerGitHubRelease())\"",
@@ -61,12 +61,12 @@
         "test": "node -e \"import('@dpuse/dpuse-development').then(m => m.testProject())\""
     },
     "dependencies": {
-        "@dpuse/dpuse-shared": "^1.0.106",
-        "chardet": "^2.2.0",
-        "file-type": "^22.1.1"
+        "@dpuse/dpuse-shared": "^1.0.113",
+        "file-type": "^22.1.1",
+        "jschardet": "^4.0.0"
     },
     "devDependencies": {
-        "@dpuse/dpuse-development": "^1.0.109",
+        "@dpuse/dpuse-development": "^1.0.112",
         "@dpuse/eslint-config-dpuse": "^1.0.132",
         "@types/node": "^26.6.4",
         "eslint": "^10.12.0",

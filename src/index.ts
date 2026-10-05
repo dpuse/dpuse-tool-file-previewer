@@ -1,9 +1,9 @@
 // ── External Dependencies & Registrations
-import chardet from 'chardet';
+import { detectAll } from 'jschardet';
 import { fileTypeFromBuffer, type FileTypeResult } from 'file-type';
 
 // ── DPUse Framework
-import { buildFetchError, isEncodingTypeId } from '@dpuse/dpuse-shared';
+import { buildFetchError, isEncodingTypeId, resolveDecoderId } from '@dpuse/dpuse-shared';
 import type { DataFormatId, EncodingDetectionConfig } from '@dpuse/dpuse-shared';
 
 // ── Data
@@ -15,12 +15,14 @@ export interface FilePreviewResult {
     dataFormatId: DataFormatId | undefined;
     encodingId: string | undefined;
     encodingConfidenceLevel: number | undefined;
+    encodingCandidates: EncodingDetectionConfig[] | undefined; // Every encoding scoring at least the minimum confidence, best first.
     fileTypeConfig: FileTypeResult | undefined;
     text: string | undefined;
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const DEFAULT_MINIMUM_CONFIDENCE_LEVEL = 0.2; // jschardet's own default.
 const DEFAULT_PREVIEW_CHUNK_SIZE = 4096;
 
 const FALLBACK_ENCODING: EncodingDetectionConfig = { id: 'utf-8', confidenceLevel: undefined };
@@ -53,26 +55,28 @@ const FILE_TYPE_MAP: Record<string, { label: string; isAutoDetectable: boolean; 
 // ── Tools ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export class Tool {
-    async previewFile(url: string, signal: AbortSignal, chunkSize?: number): Promise<FilePreviewResult> {
+    // 'minimumConfidenceLevel' (0 to 1) sets which encodings the candidate list includes. The best is always included.
+    async previewFile(url: string, signal: AbortSignal, chunkSize?: number, minimumConfidenceLevel = DEFAULT_MINIMUM_CONFIDENCE_LEVEL): Promise<FilePreviewResult> {
         // TODO: Asks for one byte too many when 'chunkSize' is given: the '- 1' applies only to the default, as '??'
         // binds more loosely than '-'. Range ends are inclusive, so write '(chunkSize ?? DEFAULT_PREVIEW_CHUNK_SIZE) - 1'.
         const response = await fetch(encodeURI(url), { headers: { Range: `bytes=0-${String(chunkSize ?? DEFAULT_PREVIEW_CHUNK_SIZE - 1)}` }, signal });
         if (!response.ok) throw await buildFetchError(response, `Failed to fetch '${url}' file.`, 'dpuse-tool-file-previewer.previewRemoteFile');
 
         const fileBytes = new Uint8Array(await response.arrayBuffer());
-        return await previewFileBytes(fileBytes);
+        return await previewFileBytes(fileBytes, minimumConfidenceLevel);
     }
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function previewFileBytes(fileBytes: Uint8Array): Promise<FilePreviewResult> {
+async function previewFileBytes(fileBytes: Uint8Array, minimumConfidenceLevel: number): Promise<FilePreviewResult> {
     if (fileBytes.length === 0) {
         return {
             bytes: fileBytes,
             dataFormatId: undefined,
             encodingId: undefined,
             encodingConfidenceLevel: undefined,
+            encodingCandidates: undefined,
             fileTypeConfig: undefined,
             text: undefined
         };
@@ -83,13 +87,14 @@ async function previewFileBytes(fileBytes: Uint8Array): Promise<FilePreviewResul
     if (fileTypeConfig == null) {
         // We were not able to determine a type by analysing the file content.
         // Assume it is a text file testing for 'json' and defaulting to 'dtv'.
-        const fileEncoding = determineEncoding(fileBytes);
-        const decodedResult = decodeFileBytes(fileBytes, fileEncoding);
+        const encodingCandidates = determineEncodings(fileBytes, minimumConfidenceLevel);
+        const decodedResult = decodeFileBytes(fileBytes, encodingCandidates[0] ?? FALLBACK_ENCODING);
         return {
             bytes: fileBytes,
             dataFormatId: isLikelyJSONFormat(decodedResult.text) ? 'json' : 'dtv',
             encodingId: decodedResult.encoding.id,
             encodingConfidenceLevel: decodedResult.encoding.confidenceLevel,
+            encodingCandidates,
             fileTypeConfig,
             text: decodedResult.text
         };
@@ -103,6 +108,7 @@ async function previewFileBytes(fileBytes: Uint8Array): Promise<FilePreviewResul
             dataFormatId: lookupFileTypeConfig.isSupported ? (fileTypeConfig.ext as DataFormatId) : undefined,
             encodingId: undefined,
             encodingConfidenceLevel: undefined,
+            encodingCandidates: undefined,
             fileTypeConfig,
             text: undefined
         };
@@ -113,30 +119,48 @@ async function previewFileBytes(fileBytes: Uint8Array): Promise<FilePreviewResul
         dataFormatId: undefined,
         encodingId: undefined,
         encodingConfidenceLevel: undefined,
+        encodingCandidates: undefined,
         fileTypeConfig,
         text: undefined
     };
 }
 
 /**
- * Determine encoding from file bytes.
+ * Determine the likely encodings from file bytes, best first, keeping those scoring at least the minimum confidence and
+ * always the best. Confidence runs from 0 to 1, as jschardet reports it. A byte order mark settles it outright.
  */
-function determineEncoding(fileBytes: Uint8Array): EncodingDetectionConfig {
-    if (fileBytes[0] === 239 && fileBytes[1] === 187 && fileBytes[2] === 191) return { confidenceLevel: 100, id: 'utf-8' };
-    if (fileBytes[0] === 254 && fileBytes[1] === 255) return { confidenceLevel: 100, id: 'utf-16be' };
-    if (fileBytes[0] === 255 && fileBytes[1] === 254) return { confidenceLevel: 100, id: 'utf-16le' };
-    const detectedEncodings = chardet.analyse(fileBytes);
-    const detectedEncoding = detectedEncodings[0] ?? { confidence: undefined, name: 'utf-8' };
-    const detectedName = detectedEncoding.name.toLowerCase();
-    return { confidenceLevel: detectedEncoding.confidence, id: isEncodingTypeId(detectedName) ? detectedName : 'utf-8' };
+function determineEncodings(fileBytes: Uint8Array, minimumConfidenceLevel: number): EncodingDetectionConfig[] {
+    if (fileBytes[0] === 239 && fileBytes[1] === 187 && fileBytes[2] === 191) return [{ confidenceLevel: 1, id: 'UTF-8-SIG' }];
+    if (fileBytes[0] === 254 && fileBytes[1] === 255) return [{ confidenceLevel: 1, id: 'utf-16-be' }];
+    if (fileBytes[0] === 255 && fileBytes[1] === 254) return [{ confidenceLevel: 1, id: 'utf-16-le' }];
+    const detections = detectAll(fileBytes, { minimumThreshold: 0 });
+    const candidates: EncodingDetectionConfig[] = [];
+    for (const { confidence, encoding } of detections) {
+        if (encoding != null && isEncodingTypeId(encoding)) candidates.push({ confidenceLevel: confidence, id: encoding });
+    }
+    return candidates.filter(({ confidenceLevel = 0 }, index) => index === 0 || confidenceLevel >= minimumConfidenceLevel);
 }
 
+// TODO: Consider decoding the encodings browsers cannot. jschardet detects 86 encodings, but the browser's
+// 'TextDecoder' decodes only 43 of them, so a file in one of the other 43 falls back to UTF-8 and comes out garbled.
+// Findings from October 2026, tested on dpuse-shared's encoding samples:
+// - iconv-lite 0.7.3 decodes 31 of the 43 exactly: UTF-16 with a byte-order mark, UTF-32, UTF-7, the DOS code pages
+//   (cp437, cp850, cp852 and others), MacGreek, MacIceland, MacLatin2, MacTurkish, koi8-t, KZ1048, ptcp154 and
+//   hp-roman8. It cannot decode the mainframe (EBCDIC) encodings, HZ-GB-2312, ISO-2022-KR, the newer ISO-2022-JP
+//   variants, Johab or cp1006.
+// - In the browser, iconv-lite adds about 200 KB gzipped, and needs stand-ins for Node's 'Buffer' and 'string_decoder'.
+// - A cheaper way to the same 31: 26 of them are single-byte, i.e. a 256-entry lookup table each. Generate the tables
+//   once from iconv-lite's data, ship them in dpuse-shared with a small decoder, and decode UTF-16, UTF-32 and UTF-7 by
+//   hand. An estimated 10-20 KB, no stand-ins, and iconv-lite is needed only to build the tables.
+// Not done yet because these encodings are rare, and comparable tools (Power Query, Google Sheets) do not decode them
+// either: they assume UTF-8 and let the user choose from common code pages. A manual encoding override in the app,
+// prompted when jschardet's confidence is low, is the better next step.
 /**
  * Decode file bytes to text.
  */
 function decodeFileBytes(fileBytes: Uint8Array, encoding: EncodingDetectionConfig): { encoding: EncodingDetectionConfig; text: string } {
     try {
-        const text = new TextDecoder(encoding.id).decode(truncateData(fileBytes));
+        const text = new TextDecoder(resolveDecoderId(encoding.id)).decode(truncateData(fileBytes));
         return { encoding, text };
     } catch {
         const text = new TextDecoder(FALLBACK_ENCODING.id, { fatal: false }).decode(truncateData(fileBytes));

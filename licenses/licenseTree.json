@@ -1,14 +1,14 @@
 {
-  "version": "1.0.103",
+  "version": "1.0.104",
   "name": "@dpuse/dpuse-tool-file-previewer",
   "dependencies": {
     "@dpuse/dpuse-development": {
-      "version": "1.0.109",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.109.tgz",
+      "version": "1.0.112",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.112.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.106"
+          "version": "1.0.113"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1201,8 +1201,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.106",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.106.tgz",
+      "version": "1.0.113",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.113.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -2056,11 +2056,6 @@
         }
       }
     },
-    "chardet": {
-      "version": "2.2.0",
-      "resolved": "https://registry.npmjs.org/chardet/-/chardet-2.2.0.tgz",
-      "overridden": false
-    },
     "eslint": {
       "version": "10.12.0",
       "resolved": "https://registry.npmjs.org/eslint/-/eslint-10.12.0.tgz",
@@ -2664,6 +2659,11 @@
           "overridden": false
         }
       }
+    },
+    "jschardet": {
+      "version": "4.0.0",
+      "resolved": "https://registry.npmjs.org/jschardet/-/jschardet-4.0.0.tgz",
+      "overridden": false
     },
     "prettier": {
       "version": "3.9.9",

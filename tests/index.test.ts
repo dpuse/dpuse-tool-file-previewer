@@ -17,8 +17,23 @@ function stubFetchBytes(bytes: Uint8Array<ArrayBuffer> | string): ReturnType<typ
     return fetchMock;
 }
 
-async function previewFile(): Promise<Awaited<ReturnType<Tool['previewFile']>>> {
-    return new Tool().previewFile(URL, new AbortController().signal);
+// Russian letters 'А'–'я' sit 0x350 below their code points in 'windows-1251'; Latin-1 letters keep theirs in 'windows-1252'.
+function encodeSingleByte(text: string): Uint8Array<ArrayBuffer> {
+    return Uint8Array.from(text, (character) => {
+        const codePoint = character.codePointAt(0) ?? 0;
+        return codePoint >= 0x4_10 && codePoint <= 0x4_4f ? codePoint - 0x3_50 : codePoint;
+    });
+}
+
+// A mostly-ASCII CSV in MacRoman, the hard case: too few accented letters for a confident detection.
+function encodeMacRomanCSV(): Uint8Array<ArrayBuffer> {
+    const text = 'id,name,city\n1,John Smith,London\n2,Hélène Dubois,Orléans\n3,Mary Jones,Leeds\n4,Noël Béranger,Nîmes\n5,Peter Brown,Boston\n';
+    const macRomanBytes: Record<string, number> = { é: 0x8e, è: 0x8f, ë: 0x91, î: 0x94 };
+    return Uint8Array.from(text, (character) => macRomanBytes[character] ?? character.codePointAt(0) ?? 0);
+}
+
+async function previewFile(minimumConfidenceLevel?: number): Promise<Awaited<ReturnType<Tool['previewFile']>>> {
+    return new Tool().previewFile(URL, new AbortController().signal, undefined, minimumConfidenceLevel);
 }
 
 describe('Tool', () => {
@@ -53,16 +68,48 @@ describe('Tool', () => {
     });
 
     it.each([
-        ['utf-8', [0xef, 0xbb, 0xbf, 0x61, 0x0a]],
-        ['utf-16be', [0xfe, 0xff, 0x00, 0x61, 0x00, 0x0a]],
-        ['utf-16le', [0xff, 0xfe, 0x61, 0x00, 0x0a, 0x00]]
+        ['UTF-8-SIG', [0xef, 0xbb, 0xbf, 0x61, 0x0a]],
+        ['utf-16-be', [0xfe, 0xff, 0x00, 0x61, 0x00, 0x0a]],
+        ['utf-16-le', [0xff, 0xfe, 0x61, 0x00, 0x0a, 0x00]]
     ])('reads a %s byte order mark with full confidence', async (encodingId, bytes) => {
         stubFetchBytes(new Uint8Array(bytes));
 
         const preview = await previewFile();
 
         expect(preview.encodingId).toBe(encodingId);
-        expect(preview.encodingConfidenceLevel).toBe(100);
+        expect(preview.encodingConfidenceLevel).toBe(1);
+        expect(preview.encodingCandidates).toEqual([{ confidenceLevel: 1, id: encodingId }]);
+    });
+
+    it('lists only the best guess when no encoding reaches the minimum confidence', async () => {
+        stubFetchBytes(encodeMacRomanCSV());
+
+        const preview = await previewFile();
+
+        expect(preview.encodingCandidates).toHaveLength(1);
+    });
+
+    it('lists more candidates, best first, as the minimum confidence is lowered', async () => {
+        stubFetchBytes(encodeMacRomanCSV());
+
+        const preview = await previewFile(0.01);
+        const confidenceLevels = preview.encodingCandidates?.map(({ confidenceLevel = 0 }) => confidenceLevel) ?? [];
+
+        expect(preview.encodingCandidates?.map(({ id }) => id)).toContain('MacRoman');
+        expect(confidenceLevels).toEqual(confidenceLevels.toSorted((left, right) => right - left));
+        expect(confidenceLevels.every((confidenceLevel) => confidenceLevel >= 0.01)).toBe(true);
+    });
+
+    it.each([
+        ['Windows-1251', 'Все люди рождаются свободными и равными в своем достоинстве и правах.'],
+        ['Windows-1252', 'Tous les êtres humains naissent libres et égaux en dignité et en droits.']
+    ])('detects and decodes %s text', async (encodingId, text) => {
+        stubFetchBytes(encodeSingleByte(`${text}\n`));
+
+        const preview = await previewFile();
+
+        expect(preview.encodingId).toBe(encodingId);
+        expect(preview.text).toBe(text);
     });
 
     it('identifies a known binary format it cannot yet read', async () => {
