@@ -80,7 +80,7 @@ License data is updated each time `npm run document` is run, using [license-chec
 
 The dependency tree below shows how each package in the table above is reached — direct and transitive — along with its installed version, release date, and update status. A package that does not ship itself, such as one whose parts are bundled separately, is left out and what ships beneath it is shown in its place. Packages flagged ❗ have a newer version available; ⚠️ indicates a package that hasn't been updated in the last 6 months or longer. Neither flag necessarily indicates a problem: we let new releases stabilise before upgrading, and some packages are mature and stable (have limited or no dependencies), so they require no active development.
 
-- **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 1.0.113 — this month: 2026-10-05
+- **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 1.0.113 — this month: 2026-10-05 → latest: 1.0.116 — this month: 2026-10-06 ❗
     - **[file-type](https://github.com/sindresorhus/file-type)** 22.1.1 — this month: 2026-09-17
     - **[valibot](https://github.com/open-circle/valibot)** 1.5.0 — this month: 2026-09-09
 - **[file-type](https://github.com/sindresorhus/file-type)** 22.1.1 — this month: 2026-09-17

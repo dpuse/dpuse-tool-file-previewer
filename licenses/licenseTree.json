@@ -1,10 +1,10 @@
 {
-  "version": "1.0.104",
+  "version": "1.0.107",
   "name": "@dpuse/dpuse-tool-file-previewer",
   "dependencies": {
     "@dpuse/dpuse-development": {
-      "version": "1.0.112",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.112.tgz",
+      "version": "1.0.113",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.113.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
@@ -1699,7 +1699,7 @@
                   "overridden": false
                 },
                 "source-map-js": {
-                  "version": "1.2.1"
+                  "version": "1.2.2"
                 }
               }
             },
@@ -3024,8 +3024,8 @@
               "overridden": false
             },
             "source-map-js": {
-              "version": "1.2.1",
-              "resolved": "https://registry.npmjs.org/source-map-js/-/source-map-js-1.2.1.tgz",
+              "version": "1.2.2",
+              "resolved": "https://registry.npmjs.org/source-map-js/-/source-map-js-1.2.2.tgz",
               "overridden": false
             }
           }
