@@ -3,7 +3,7 @@ import { detectAll } from 'jschardet';
 import { fileTypeFromBuffer, type FileTypeResult } from 'file-type';
 
 // ── DPUse Framework
-import { buildFetchError, isEncodingTypeId, resolveDecoderId } from '@dpuse/dpuse-shared';
+import { buildFetchError, extractExtensionFromPath, isEncodingTypeId, resolveDecoderId } from '@dpuse/dpuse-shared';
 import type { DataFormatId, EncodingDetectionConfig } from '@dpuse/dpuse-shared';
 
 // ── Data
@@ -26,6 +26,9 @@ const DEFAULT_MINIMUM_CONFIDENCE_LEVEL = 0.2; // jschardet's own default.
 const DEFAULT_PREVIEW_CHUNK_SIZE = 4096;
 
 const FALLBACK_ENCODING: EncodingDetectionConfig = { id: 'utf-8', confidenceLevel: undefined };
+
+// Markdown and plain text cannot be told apart from delimited text by their content, so their extension decides.
+const TEXT_DATA_FORMAT_ID_MAP: Record<string, DataFormatId> = { log: 'text', markdown: 'markdown', md: 'markdown', text: 'text', txt: 'text' };
 
 const FILE_TYPE_MAP: Record<string, { label: string; isAutoDetectable: boolean; isSupported: boolean; magicBytes?: number[]; notes: string }> = {
     arrow: { label: 'Columnar format for tables of data.', isAutoDetectable: true, isSupported: false, notes: '' },
@@ -63,13 +66,14 @@ export class Tool {
         if (!response.ok) throw await buildFetchError(response, `Failed to fetch '${url}' file.`, 'dpuse-tool-file-previewer.previewRemoteFile');
 
         const fileBytes = new Uint8Array(await response.arrayBuffer());
-        return await previewFileBytes(fileBytes, minimumConfidenceLevel);
+        const extension = extractExtensionFromPath(new URL(url).pathname)?.toLowerCase();
+        return await previewFileBytes(fileBytes, extension, minimumConfidenceLevel);
     }
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function previewFileBytes(fileBytes: Uint8Array, minimumConfidenceLevel: number): Promise<FilePreviewResult> {
+async function previewFileBytes(fileBytes: Uint8Array, extension: string | undefined, minimumConfidenceLevel: number): Promise<FilePreviewResult> {
     if (fileBytes.length === 0) {
         return {
             bytes: fileBytes,
@@ -86,7 +90,7 @@ async function previewFileBytes(fileBytes: Uint8Array, minimumConfidenceLevel: n
 
     if (fileTypeConfig == null) {
         // We were not able to determine a type by analysing the file content.
-        // Assume it is a text file testing for 'json' and defaulting to 'dtv'.
+        // Assume it is a text file: markdown or plain text by its extension, otherwise testing for 'json' and defaulting to 'dtv'.
         const encodingCandidates = determineEncodings(fileBytes, minimumConfidenceLevel);
         // TODO: Decode with the first candidate the browser can decode, rather than falling back to UTF-8 when the best
         // candidate cannot be decoded. Today the best candidate always goes to 'decodeFileBytes', and if 'TextDecoder'
@@ -103,7 +107,7 @@ async function previewFileBytes(fileBytes: Uint8Array, minimumConfidenceLevel: n
         const decodedResult = decodeFileBytes(fileBytes, encodingCandidates[0] ?? FALLBACK_ENCODING);
         return {
             bytes: fileBytes,
-            dataFormatId: isLikelyJSONFormat(decodedResult.text) ? 'json' : 'dtv',
+            dataFormatId: (extension == null ? undefined : TEXT_DATA_FORMAT_ID_MAP[extension]) ?? (isLikelyJSONFormat(decodedResult.text) ? 'json' : 'dtv'),
             encodingId: decodedResult.encoding.id,
             encodingConfidenceLevel: decodedResult.encoding.confidenceLevel,
             encodingCandidates,

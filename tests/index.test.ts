@@ -68,6 +68,20 @@ describe('Tool', () => {
     });
 
     it.each([
+        ['notes.md', 'markdown'],
+        ['README.MARKDOWN', 'markdown'],
+        ['notes.txt', 'text'],
+        ['server.log', 'text']
+    ])('reads %s as %s by its extension', async (fileName, dataFormatId) => {
+        stubFetchBytes('# Title\n\nSome words, and more words.\n');
+
+        const preview = await new Tool().previewFile(`https://sample-data-eu.dpuse.app/fileStore/${fileName}`, new AbortController().signal);
+
+        expect(preview.dataFormatId).toBe(dataFormatId);
+        expect(preview.text).toBe('# Title\n\nSome words, and more words.');
+    });
+
+    it.each([
         ['UTF-8-SIG', [0xef, 0xbb, 0xbf, 0x61, 0x0a]],
         ['utf-16-be', [0xfe, 0xff, 0x00, 0x61, 0x00, 0x0a]],
         ['utf-16-le', [0xff, 0xfe, 0x61, 0x00, 0x0a, 0x00]]
