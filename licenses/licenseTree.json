@@ -1,5 +1,5 @@
 {
-  "version": "1.0.110",
+  "version": "1.0.111",
   "name": "@dpuse/dpuse-tool-file-previewer",
   "dependencies": {
     "@dpuse/dpuse-development": {
