@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-10-20T12:54:12.159Z",
+    "generatedAt": "2026-10-22T11:07:38.988Z",
     "integration": "vite",
     "sources": false,
     "gzip": true,
@@ -21,8 +21,8 @@
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 20296,
-      "gzip": 1071,
+      "uncompressed": 19773,
+      "gzip": 1063,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -30,8 +30,8 @@
       "kind": "asset",
       "name": "dist/dpuse-tool-file-previewer.es.js",
       "type": "script",
-      "uncompressed": 1267885,
-      "gzip": 734769,
+      "uncompressed": 1268186,
+      "gzip": 735226,
       "brotli": 0
     },
     {
@@ -46,8 +46,8 @@
       "name": "node_modules/@borewit/text-codec/lib/index.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 3455,
-      "gzip": 1266,
+      "uncompressed": 3410,
+      "gzip": 1260,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -56,7 +56,7 @@
       "name": "node_modules/@dpuse/dpuse-shared/dist/dpuse-shared.es.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 37868
+      "uncompressed": 38173
     },
     {
       "kind": "chunk",
@@ -64,7 +64,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 16225,
-      "gzip": 4517,
+      "gzip": 4516,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -80,8 +80,8 @@
       "name": "node_modules/@tokenizer/inflate/lib/GzipHandler.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 385,
-      "gzip": 281,
+      "uncompressed": 335,
+      "gzip": 263,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -105,7 +105,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 6805,
-      "gzip": 2243,
+      "gzip": 2245,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -156,7 +156,7 @@
       "type": "script",
       "format": "cjs",
       "uncompressed": 2721,
-      "gzip": 1133,
+      "gzip": 1132,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -189,7 +189,7 @@
       "name": "node_modules/file-type/source/detectors/asf.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 1379,
+      "uncompressed": 1360,
       "gzip": 652,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
@@ -207,7 +207,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 1175,
-      "gzip": 614,
+      "gzip": 615,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -224,7 +224,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 996,
-      "gzip": 545,
+      "gzip": 546,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -240,8 +240,8 @@
       "name": "node_modules/file-type/source/detectors/zip.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 10405,
-      "gzip": 2914,
+      "uncompressed": 10408,
+      "gzip": 2915,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -257,8 +257,8 @@
       "name": "node_modules/file-type/source/index.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 25931,
-      "gzip": 6838,
+      "uncompressed": 25924,
+      "gzip": 6840,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -274,8 +274,8 @@
       "name": "node_modules/file-type/source/parser.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 828,
-      "gzip": 454,
+      "uncompressed": 830,
+      "gzip": 456,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -292,7 +292,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 4971,
-      "gzip": 1686,
+      "gzip": 1685,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -309,7 +309,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 706,
-      "gzip": 339,
+      "gzip": 340,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -332,8 +332,8 @@
       "name": "node_modules/jschardet/dist/jschardet.esm.min.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 1149281,
-      "gzip": 700950,
+      "uncompressed": 1149229,
+      "gzip": 700919,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -384,7 +384,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 2984,
-      "gzip": 937,
+      "gzip": 931,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -401,7 +401,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 767,
-      "gzip": 405,
+      "gzip": 403,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -418,7 +418,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 410,
-      "gzip": 268,
+      "gzip": 267,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -435,7 +435,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 645,
-      "gzip": 328,
+      "gzip": 329,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -476,7 +476,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 1996,
-      "gzip": 772,
+      "gzip": 771,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -582,7 +582,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 156,
-      "gzip": 132,
+      "gzip": 131,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -599,7 +599,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 220,
-      "gzip": 169,
+      "gzip": 171,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -630,7 +630,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 1018,
-      "gzip": 302,
+      "gzip": 301,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -656,15 +656,15 @@
       "name": "src/index.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 8426
+      "uncompressed": 10778
     },
     {
       "kind": "chunk",
       "name": "src/index.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 4927,
-      "gzip": 1606,
+      "uncompressed": 5919,
+      "gzip": 2127,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     }

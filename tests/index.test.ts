@@ -32,6 +32,16 @@ function encodeMacRomanCSV(): Uint8Array<ArrayBuffer> {
     return Uint8Array.from(text, (character) => macRomanBytes[character] ?? character.codePointAt(0) ?? 0);
 }
 
+// Each character low byte first, after the 'FF FE' byte order mark. Only for text without characters beyond U+FFFF,
+// which UTF-16 would split in two.
+function encodeUTF16LittleEndian(text: string): Uint8Array<ArrayBuffer> {
+    return Uint8Array.from({ length: 2 + text.length * 2 }, (_, index) => {
+        if (index < 2) return index === 0 ? 0xff : 0xfe;
+        const codeUnit = text.codePointAt((index - 2) >> 1) ?? 0;
+        return index % 2 === 0 ? codeUnit & 0xff : codeUnit >> 8;
+    });
+}
+
 async function previewFile(minimumConfidenceLevel?: number): Promise<Awaited<ReturnType<Tool['previewFile']>>> {
     return new Tool().previewFile(URL, new AbortController().signal, undefined, minimumConfidenceLevel);
 }
@@ -60,19 +70,64 @@ describe('Tool', () => {
         expect(preview.fileTypeConfig).toBeUndefined();
     });
 
-    it('recognises JSON text', async () => {
-        stubFetchBytes('[{"name": "Ada"}]\n');
+    it.each([
+        ['an object', '{"name": "Ada", "age": 36}\n'],
+        ['an empty object', '{}\n'],
+        ['an array of objects', '[{"name": "Ada"}, {"name": "Grace"}]\n'],
+        ['an array of numbers', '[1, -2.5, 3e8]\n'],
+        ['an array of literals', '[true, false, null]\n'],
+        ['nested values over several lines', '{\n  "people": [\n    {"name": "Ada", "tags": ["a", "b"]}\n  ]\n}\n'],
+        ['escapes in strings', String.raw`{"quote": "\"", "path": "C:\\data", "accent": "\u00e9"}` + '\n'],
+        ['a file cut off after a complete line', '[\n  {"name": "Ada"},\n  {"name": "Gra'],
+        ['minified JSON cut off inside a string', '[{"name":"Ada"},{"name":"Gra'],
+        ['minified JSON cut off inside a number', '[{"age":36},{"age":4'],
+        ['minified JSON cut off inside a literal', '[{"isActive":true},{"isActive":fal'],
+        ['a byte order mark', '\u{FEFF}{"name": "Ada"}\n']
+    ])('recognises JSON: %s', async (_description, text) => {
+        stubFetchBytes(text);
 
         const preview = await previewFile();
+
+        expect(preview.dataFormatId).toBe('json');
+    });
+
+    it.each([
+        ['a bracketed CSV header', '[Id],[Name]\n1,"Smith, J"\n'],
+        ['a CSV with a bracketed header and a literal', '[x],flag\n1,true\n'],
+        ['a log line', '[2026-10-22 10:00] INFO user "bob" logged in\n'],
+        ['an INI section', '[section]\nkey="value"\n'],
+        ['a markdown link', '[link](https://dpuse.app) "quoted"\n'],
+        ['JSON Lines', '{"name": "Ada"}\n{"name": "Grace"}\n'],
+        ['a single quoted key', "{'name': 'Ada'}\n"],
+        ['an unquoted key', '{name: "Ada"}\n'],
+        ['a trailing comma', '[1, 2,]\n'],
+        ['a number with a leading zero', '[01, 2]\n'],
+        ['a bad escape', String.raw`["\q"]` + '\n'],
+        ['a mismatched bracket', '{"name": "Ada"]\n'],
+        ['a line break inside a string', '["Ada\nLovelace"]\n'],
+        ['a bare string', '"Ada"\n']
+    ])('does not mistake %s for JSON', async (_description, text) => {
+        stubFetchBytes(text);
+
+        const preview = await previewFile();
+
+        expect(preview.dataFormatId).toBe('dtv');
+    });
+
+    it('recognises JSON before reading the extension', async () => {
+        stubFetchBytes('{"name": "Ada"}\n');
+
+        const preview = await new Tool().previewFile('https://sample-data-eu.dpuse.app/fileStore/people.txt', new AbortController().signal);
+
         expect(preview.dataFormatId).toBe('json');
     });
 
     it.each([
         ['notes.md', 'markdown'],
         ['README.MARKDOWN', 'markdown'],
-        ['notes.txt', 'text'],
-        ['server.log', 'text']
-    ])('reads %s as %s by its extension', async (fileName, dataFormatId) => {
+        ['notes.txt', 'dtv'],
+        ['server.log', 'dtv']
+    ])('reads %s as %s, as only markdown is known by its extension', async (fileName, dataFormatId) => {
         stubFetchBytes('# Title\n\nSome words, and more words.\n');
 
         const preview = await new Tool().previewFile(`https://sample-data-eu.dpuse.app/fileStore/${fileName}`, new AbortController().signal);
@@ -134,6 +189,36 @@ describe('Tool', () => {
         expect(preview.fileTypeConfig?.ext).toBe('pdf');
         expect(preview.dataFormatId).toBeUndefined();
         expect(preview.text).toBeUndefined();
+    });
+
+    it('decodes XML in the encoding its declaration names', async () => {
+        stubFetchBytes(encodeSingleByte('<?xml version="1.0" encoding="ISO-8859-1"?>\n<name>Hélène</name>\n'));
+
+        const preview = await previewFile();
+
+        expect(preview.fileTypeConfig?.ext).toBe('xml');
+        expect(preview.encodingId).toBe('ISO-8859-1');
+        expect(preview.encodingConfidenceLevel).toBe(1);
+        expect(preview.text).toBe('<?xml version="1.0" encoding="ISO-8859-1"?>\n<name>Hélène</name>');
+    });
+
+    it('decodes XML without an encoding declaration as UTF-8', async () => {
+        stubFetchBytes('<?xml version="1.0"?>\n<name>Hélène</name>\n');
+
+        const preview = await previewFile();
+
+        expect(preview.encodingId).toBe('utf-8');
+        expect(preview.text).toBe('<?xml version="1.0"?>\n<name>Hélène</name>');
+    });
+
+    it('decodes XML by its byte order mark', async () => {
+        stubFetchBytes(encodeUTF16LittleEndian('<?xml version="1.0" encoding="UTF-16"?>\n<name>Hélène</name>\n'));
+
+        const preview = await previewFile();
+
+        expect(preview.fileTypeConfig?.ext).toBe('xml');
+        expect(preview.encodingId).toBe('utf-16-le');
+        expect(preview.text).toBe('<?xml version="1.0" encoding="UTF-16"?>\n<name>Hélène</name>');
     });
 
     it('identifies a binary format it does not list', async () => {
