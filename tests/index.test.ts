@@ -97,7 +97,6 @@ describe('Tool', () => {
         ['a log line', '[2026-10-22 10:00] INFO user "bob" logged in\n'],
         ['an INI section', '[section]\nkey="value"\n'],
         ['a markdown link', '[link](https://dpuse.app) "quoted"\n'],
-        ['JSON Lines', '{"name": "Ada"}\n{"name": "Grace"}\n'],
         ['a single quoted key', "{'name': 'Ada'}\n"],
         ['an unquoted key', '{name: "Ada"}\n'],
         ['a trailing comma', '[1, 2,]\n'],
@@ -112,6 +111,40 @@ describe('Tool', () => {
         const preview = await previewFile();
 
         expect(preview.dataFormatId).toBe('dtv');
+    });
+
+    it.each([
+        ['an object per line', '{"name": "Ada"}\n{"name": "Grace"}\n'],
+        ['an array per line', '["Ada", 36]\n["Grace", 85]\n'],
+        ['blank lines between records', '{"name": "Ada"}\n\n{"name": "Grace"}\n'],
+        ['Windows line endings', '{"name": "Ada"}\r\n{"name": "Grace"}\r\n'],
+        ['a file cut off part way through a record', '{"name": "Ada"}\n{"name": "Grace"}\n{"name": "Kath']
+    ])('recognises JSON Lines: %s', async (_description, text) => {
+        stubFetchBytes(text);
+
+        const preview = await previewFile();
+
+        expect(preview.dataFormatId).toBe('jsonl');
+    });
+
+    it.each([
+        ['a line that is not JSON', '{"name": "Ada"}\nname,age\n'],
+        ['lines of numbers', '1\n2\n3\n'],
+        ['lines of strings', '"Ada"\n"Grace"\n']
+    ])('does not mistake %s for JSON Lines', async (_description, text) => {
+        stubFetchBytes(text);
+
+        const preview = await previewFile();
+
+        expect(preview.dataFormatId).toBe('dtv');
+    });
+
+    it('recognises JSON Lines before reading the extension', async () => {
+        stubFetchBytes('{"name": "Ada"}\n{"name": "Grace"}\n');
+
+        const preview = await new Tool().previewFile('https://sample-data-eu.dpuse.app/fileStore/people.txt', new AbortController().signal);
+
+        expect(preview.dataFormatId).toBe('jsonl');
     });
 
     it('recognises JSON before reading the extension', async () => {

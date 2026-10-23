@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-tool-file-previewer",
-    "version": "1.0.113",
+    "version": "1.0.114",
     "private": false,
     "description": "...",
     "license": "MIT",
@@ -61,7 +61,7 @@
         "test": "node -e \"import('@dpuse/dpuse-development').then(m => m.testProject())\""
     },
     "dependencies": {
-        "@dpuse/dpuse-shared": "^1.0.130",
+        "@dpuse/dpuse-shared": "^1.0.131",
         "file-type": "^22.2.0",
         "jschardet": "^4.0.0"
     },
@@ -77,6 +77,6 @@
         "vite": "^8.3.5",
         "vite-plugin-dts": "^5.1.2",
         "vitest": "^5.0.5",
-        "wrangler": "^4.151.3"
+        "wrangler": "^4.152.0"
     }
 }

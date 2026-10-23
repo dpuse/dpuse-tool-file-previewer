@@ -104,9 +104,9 @@ async function previewFileBytes(fileBytes: Uint8Array, extension: string | undef
     const fileTypeConfig = await fileTypeFromBuffer(fileBytes);
     if (fileTypeConfig != null) return previewDetectedFileType(fileBytes, fileTypeConfig);
 
-    // Not identified by its content, so assumed to be text. JSON is checked first, because its strict syntax makes the
-    // check reliable whatever the extension. Otherwise the extension tells markdown apart, which content cannot, and
-    // the rest is taken as delimited text until parsing it shows otherwise.
+    // Not identified by its content, so assumed to be text. JSON and JSON Lines are checked first, because their strict
+    // syntax makes the check reliable whatever the extension. Otherwise the extension tells markdown apart, which content
+    // cannot, and the rest is taken as delimited text until parsing it shows otherwise.
     const encodingCandidates = determineEncodings(fileBytes, minimumConfidenceLevel);
     // TODO: Decode with the first candidate the browser can decode, rather than falling back to UTF-8 when the best
     // candidate cannot be decoded. Today the best candidate always goes to 'decodeFileBytes', and if 'TextDecoder'
@@ -121,10 +121,9 @@ async function previewFileBytes(fileBytes: Uint8Array, extension: string | undef
     // whether 'encodingId' should report the candidate actually used, which may then differ from the first entry
     // in 'encodingCandidates'.
     const decodedResult = decodeFileBytes(fileBytes, encodingCandidates[0] ?? FALLBACK_ENCODING);
-    const extensionDataFormatId = extension == null ? undefined : TEXT_DATA_FORMAT_ID_MAP[extension];
     return {
         bytes: fileBytes,
-        dataFormatId: isLikelyJSONFormat(decodedResult.text) ? 'json' : (extensionDataFormatId ?? 'dtv'),
+        dataFormatId: determineTextDataFormatId(decodedResult.text, extension),
         encodingId: decodedResult.encoding.id,
         encodingConfidenceLevel: decodedResult.encoding.confidenceLevel,
         encodingCandidates,
@@ -217,6 +216,12 @@ function decodeFileBytes(fileBytes: Uint8Array, encoding: DecodingEncoding): { e
     }
 }
 
+function determineTextDataFormatId(text: string, extension: string | undefined): DataFormatId {
+    if (isLikelyJSONFormat(text)) return 'json';
+    if (isLikelyJSONLinesFormat(text)) return 'jsonl';
+    return (extension == null ? undefined : TEXT_DATA_FORMAT_ID_MAP[extension]) ?? 'dtv';
+}
+
 // Whether the text is JSON, or JSON cut off where the preview ends: one object or array whose every token is valid as
 // far as the text goes. One wrong token rules it out, so a bracketed CSV header ('[Id],[Name]'), an INI section or a
 // log line starting with '[' is not taken for JSON. So does a second value after the first ends, as in JSON Lines.
@@ -227,6 +232,22 @@ function isLikelyJSONFormat(text: string): boolean {
     let position: JSONPosition | undefined = { expectation: 'value', index: firstIndex };
     while (position != null && position.index < text.length) position = readJSONToken(text, position, openBrackets);
     return position != null;
+}
+
+// Whether every line holds one whole JSON object or array, as JSON Lines does. A single line of JSON is just JSON, so
+// at least two are needed. The preview ends at a line break, so its last line is whole.
+function isLikelyJSONLinesFormat(text: string): boolean {
+    const lines = text.split(/\r\n|\n|\r/).filter((line) => line.trim() !== '');
+    return lines.length > 1 && lines.every((line) => isJSONObjectOrArray(line));
+}
+
+function isJSONObjectOrArray(line: string): boolean {
+    try {
+        const value: unknown = JSON.parse(line);
+        return typeof value === 'object' && value !== null;
+    } catch {
+        return false;
+    }
 }
 
 function readJSONToken(text: string, { expectation, index }: JSONPosition, openBrackets: string[]): JSONPosition | undefined {
