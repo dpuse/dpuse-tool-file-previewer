@@ -286,6 +286,15 @@ describe('Tool', () => {
         });
     });
 
+    it('returns nothing to preview for an empty file the store will not send a range of', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(undefined, { status: 416, statusText: 'Range Not Satisfiable' })));
+
+        const preview = await previewFile();
+
+        expect(preview.bytes).toEqual(new Uint8Array(0));
+        expect(preview.text).toBeUndefined();
+    });
+
     it('rejects when the file cannot be fetched', async () => {
         vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('missing', { status: 404, statusText: 'Not Found' })));
 

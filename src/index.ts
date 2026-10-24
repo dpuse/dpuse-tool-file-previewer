@@ -78,10 +78,12 @@ export class Tool {
     // 'minimumConfidenceLevel' (0 to 1) sets which encodings the candidate list includes. The best is always included.
     async previewFile(url: string, signal: AbortSignal, chunkSize?: number, minimumConfidenceLevel = DEFAULT_MINIMUM_CONFIDENCE_LEVEL): Promise<FilePreviewResult> {
         const response = await fetch(encodeURI(url), { headers: { Range: `bytes=0-${String((chunkSize ?? DEFAULT_PREVIEW_CHUNK_SIZE) - 1)}` }, signal }); // Range ends are inclusive.
+        const extension = extractExtensionFromPath(new URL(url).pathname)?.toLowerCase();
+        // A file with no bytes has no first byte to send, so the store answers 'Range Not Satisfiable' (416).
+        if (response.status === 416) return await previewFileBytes(new Uint8Array(0), extension, minimumConfidenceLevel);
         if (!response.ok) throw await buildFetchError(response, `Failed to fetch '${url}' file.`, 'dpuse-tool-file-previewer.previewRemoteFile');
 
         const fileBytes = new Uint8Array(await response.arrayBuffer());
-        const extension = extractExtensionFromPath(new URL(url).pathname)?.toLowerCase();
         return await previewFileBytes(fileBytes, extension, minimumConfidenceLevel);
     }
 }

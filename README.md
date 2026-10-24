@@ -84,7 +84,7 @@ The dependency tree below shows how each package in the table above is reached �
     - **[file-type](https://github.com/sindresorhus/file-type)** 22.2.0 — this month: 2026-10-14
     - **[valibot](https://github.com/open-circle/valibot)** 1.5.0 — 1 mth ago: 2026-09-09
 - **[file-type](https://github.com/sindresorhus/file-type)** 22.2.0 — this month: 2026-10-14
-    - **[@tokenizer/inflate](https://github.com/Borewit/tokenizer-inflate)** 0.5.1 — this month: 2026-10-13 → latest: 0.5.2 — this month: 2026-10-24 ❗
+    - **[@tokenizer/inflate](https://github.com/Borewit/tokenizer-inflate)** 0.5.1 — this month: 2026-10-13 → latest: 0.6.0 — this month: 2026-10-24 ❗
         - **[debug](https://github.com/debug-js/debug)** 4.4.3 — 13 mths ago: 2025-09-13 ⚠️
         - **[token-types](https://github.com/Borewit/token-types)** 6.1.2 — 9 mths ago: 2026-01-01 ⚠️
     - **[strtok3](https://github.com/Borewit/strtok3)** 10.6.2 — this month: 2026-10-18
