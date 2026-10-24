@@ -47,6 +47,7 @@ interface DataFileTypeConfig {
 
 const DEFAULT_MINIMUM_CONFIDENCE_LEVEL = 0.2; // jschardet's own default.
 const DEFAULT_PREVIEW_CHUNK_SIZE = 4096;
+const MARKDOWN_PREVIEW_CHUNK_SIZE = 65_536; // Markdown shows as a document, so enough to hold most READMEs and notes whole.
 
 const FALLBACK_ENCODING: EncodingDetectionConfig = { id: 'utf-8', confidenceLevel: undefined };
 
@@ -58,9 +59,13 @@ const XML_DECLARATION_ENCODING_PATTERN = /^<\?xml\s[^?]*?\bencoding\s*=\s*(["'])
 const JSON_LITERALS = ['false', 'null', 'true'];
 const JSON_WHITESPACE_CHARACTERS = new Set([' ', '\t', '\n', '\r']);
 
-// Markdown cannot be told apart from plain or delimited text by its content, so its extension decides. Plain text is
-// told apart from delimited text by parsing it, so '.txt' files, often tab-delimited exports, are not listed.
-const TEXT_DATA_FORMAT_ID_MAP: Record<string, DataFormatId> = { markdown: 'markdown', md: 'markdown' };
+// Markdown cannot be told apart from plain or delimited text by its content, so the item's MIME type decides, or its
+// extension when there is no type. 'application/octet-stream' says nothing about the content, so it counts as no type.
+// Plain text is told apart from delimited text by parsing it, so '.txt' files, often tab-delimited exports, are not
+// listed.
+const MARKDOWN_EXTENSIONS = new Set(['markdown', 'md']);
+const MARKDOWN_MIME_TYPE = 'text/markdown';
+const UNKNOWN_MIME_TYPE = 'application/octet-stream';
 
 const AUTO_DETECTABLE_DATA_FILE_TYPE_MAP: Record<string, DataFileTypeConfig> = {
     arrow: { label: 'Columnar format for tables of data.', structure: 'table', isAutoDetectable: true, isSupported: false },
@@ -78,17 +83,23 @@ const AUTO_DETECTABLE_DATA_FILE_TYPE_MAP: Record<string, DataFileTypeConfig> = {
 
 export class Tool {
     // 'minimumConfidenceLevel' (0 to 1) sets which encodings the candidate list includes. The best is always included.
-    async previewFile(url: string, signal: AbortSignal, chunkSize?: number, minimumConfidenceLevel = DEFAULT_MINIMUM_CONFIDENCE_LEVEL): Promise<FilePreviewResult> {
-        const requestedByteCount = chunkSize ?? DEFAULT_PREVIEW_CHUNK_SIZE;
+    async previewFile(
+        url: string,
+        signal: AbortSignal,
+        chunkSize?: number,
+        mimeType?: string,
+        minimumConfidenceLevel = DEFAULT_MINIMUM_CONFIDENCE_LEVEL
+    ): Promise<FilePreviewResult> {
+        const isMarkdown = determineIsMarkdown(mimeType, extractExtensionFromPath(new URL(url).pathname)?.toLowerCase());
+        const requestedByteCount = chunkSize ?? (isMarkdown ? MARKDOWN_PREVIEW_CHUNK_SIZE : DEFAULT_PREVIEW_CHUNK_SIZE);
         const response = await fetch(encodeURI(url), { headers: { Range: `bytes=0-${String(requestedByteCount - 1)}` }, signal }); // Range ends are inclusive.
-        const extension = extractExtensionFromPath(new URL(url).pathname)?.toLowerCase();
         // A file with no bytes has no first byte to send, so the store answers 'Range Not Satisfiable' (416).
-        if (response.status === 416) return { ...(await previewFileBytes(new Uint8Array(0), extension, minimumConfidenceLevel, true)), isComplete: true };
+        if (response.status === 416) return { ...(await previewFileBytes(new Uint8Array(0), isMarkdown, minimumConfidenceLevel, true)), isComplete: true };
         if (!response.ok) throw await buildFetchError(response, `Failed to fetch '${url}' file.`, 'dpuse-tool-file-previewer.previewRemoteFile');
 
         const fileBytes = new Uint8Array(await response.arrayBuffer());
         const isComplete = determineIsComplete(response, fileBytes.length, requestedByteCount);
-        return { ...(await previewFileBytes(fileBytes, extension, minimumConfidenceLevel, isComplete)), isComplete };
+        return { ...(await previewFileBytes(fileBytes, isMarkdown, minimumConfidenceLevel, isComplete)), isComplete };
     }
 }
 
@@ -101,7 +112,7 @@ function determineIsComplete(response: Response, byteCount: number, requestedByt
     return totalByteCount == null ? response.status !== 206 || byteCount < requestedByteCount : byteCount >= Number(totalByteCount);
 }
 
-async function previewFileBytes(fileBytes: Uint8Array, extension: string | undefined, minimumConfidenceLevel: number, isComplete: boolean): Promise<PreviewContent> {
+async function previewFileBytes(fileBytes: Uint8Array, isMarkdown: boolean, minimumConfidenceLevel: number, isComplete: boolean): Promise<PreviewContent> {
     if (fileBytes.length === 0) {
         return {
             bytes: fileBytes,
@@ -118,8 +129,8 @@ async function previewFileBytes(fileBytes: Uint8Array, extension: string | undef
     if (fileTypeConfig != null) return previewDetectedFileType(fileBytes, fileTypeConfig, isComplete);
 
     // Not identified by its content, so assumed to be text. JSON and JSON Lines are checked first, because their strict
-    // syntax makes the check reliable whatever the extension. Otherwise the extension tells markdown apart, which content
-    // cannot, and the rest is taken as delimited text until parsing it shows otherwise.
+    // syntax makes the check reliable whatever the extension. Otherwise the MIME type or extension tells markdown apart,
+    // which content cannot, and the rest is taken as delimited text until parsing it shows otherwise.
     const encodingCandidates = determineEncodings(fileBytes, minimumConfidenceLevel);
     // TODO: Decode with the first candidate the browser can decode, rather than falling back to UTF-8 when the best
     // candidate cannot be decoded. Today the best candidate always goes to 'decodeFileBytes', and if 'TextDecoder'
@@ -136,7 +147,7 @@ async function previewFileBytes(fileBytes: Uint8Array, extension: string | undef
     const decodedResult = decodeFileBytes(fileBytes, encodingCandidates[0] ?? FALLBACK_ENCODING, isComplete);
     return {
         bytes: fileBytes,
-        dataFormatId: determineTextDataFormatId(decodedResult.text, extension),
+        dataFormatId: determineTextDataFormatId(decodedResult.text, isMarkdown),
         encodingId: decodedResult.encoding.id,
         encodingConfidenceLevel: decodedResult.encoding.confidenceLevel,
         encodingCandidates,
@@ -243,10 +254,16 @@ function decodeFileBytes(fileBytes: Uint8Array, encoding: DecodingEncoding, isCo
     }
 }
 
-function determineTextDataFormatId(text: string, extension: string | undefined): DataFormatId {
+function determineIsMarkdown(mimeType: string | undefined, extension: string | undefined): boolean {
+    const mediaType = mimeType?.split(';', 1)[0]?.trim().toLowerCase(); // A type can carry parameters, e.g. 'text/markdown; charset=UTF-8'.
+    const isTypeKnown = mediaType != null && mediaType !== '' && mediaType !== UNKNOWN_MIME_TYPE;
+    return isTypeKnown ? mediaType === MARKDOWN_MIME_TYPE : extension != null && MARKDOWN_EXTENSIONS.has(extension);
+}
+
+function determineTextDataFormatId(text: string, isMarkdown: boolean): DataFormatId {
     if (isLikelyJSONFormat(text)) return 'json';
     if (isLikelyJSONLinesFormat(text)) return 'jsonl';
-    return (extension == null ? undefined : TEXT_DATA_FORMAT_ID_MAP[extension]) ?? 'dtv';
+    return isMarkdown ? 'markdown' : 'dtv';
 }
 
 // Whether the text is JSON, or JSON cut off where the preview ends: one object or array whose every token is valid as

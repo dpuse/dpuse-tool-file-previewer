@@ -47,7 +47,7 @@ function encodeUTF16LittleEndian(text: string): Uint8Array<ArrayBuffer> {
 }
 
 async function previewFile(minimumConfidenceLevel?: number): Promise<Awaited<ReturnType<Tool['previewFile']>>> {
-    return new Tool().previewFile(URL, new AbortController().signal, undefined, minimumConfidenceLevel);
+    return new Tool().previewFile(URL, new AbortController().signal, undefined, undefined, minimumConfidenceLevel);
 }
 
 describe('Tool', () => {
@@ -61,6 +61,22 @@ describe('Tool', () => {
         await previewFile();
 
         expect(fetchMock).toHaveBeenCalledWith(URL, expect.objectContaining({ headers: { Range: 'bytes=0-4095' } }));
+    });
+
+    it('asks for more of a markdown file, which shows as a document', async () => {
+        const fetchMock = stubFetchBytes('# Title\n');
+
+        await new Tool().previewFile('https://sample-data-eu.dpuse.app/fileStore/notes.md', new AbortController().signal);
+
+        expect(fetchMock).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ headers: { Range: 'bytes=0-65535' } }));
+    });
+
+    it('asks for the chunk size given, whatever the format', async () => {
+        const fetchMock = stubFetchBytes('# Title\n');
+
+        await new Tool().previewFile('https://sample-data-eu.dpuse.app/fileStore/notes.md', new AbortController().signal, 1024);
+
+        expect(fetchMock).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ headers: { Range: 'bytes=0-1023' } }));
     });
 
     it('decodes delimited text up to its last complete line', async () => {
@@ -171,6 +187,20 @@ describe('Tool', () => {
 
         expect(preview.dataFormatId).toBe(dataFormatId);
         expect(preview.text).toBe('# Title\n\nSome words, and more words.');
+    });
+
+    it.each([
+        ['notes.txt', 'text/markdown', 'markdown'],
+        ['notes.txt', 'text/markdown; charset=UTF-8', 'markdown'],
+        ['notes.md', 'text/plain', 'dtv'],
+        ['notes.md', 'application/octet-stream', 'markdown'],
+        ['notes.md', '', 'markdown']
+    ])('reads %s with MIME type %j as %s, as the type decides before the extension', async (fileName, mimeType, dataFormatId) => {
+        stubFetchBytes('# Title\n\nSome words, and more words.\n');
+
+        const preview = await new Tool().previewFile(`https://sample-data-eu.dpuse.app/fileStore/${fileName}`, new AbortController().signal, undefined, mimeType);
+
+        expect(preview.dataFormatId).toBe(dataFormatId);
     });
 
     it.each([
