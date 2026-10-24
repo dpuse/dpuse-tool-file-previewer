@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-tool-file-previewer",
-    "version": "1.0.116",
+    "version": "1.0.117",
     "private": false,
     "description": "...",
     "license": "MIT",
@@ -66,8 +66,8 @@
         "jschardet": "^4.0.0"
     },
     "devDependencies": {
-        "@dpuse/dpuse-development": "^1.0.131",
-        "@dpuse/eslint-config-dpuse": "^1.0.142",
+        "@dpuse/dpuse-development": "^1.0.133",
+        "@dpuse/eslint-config-dpuse": "^1.0.145",
         "@types/node": "^26.6.5",
         "@vitest/coverage-v8": "^5.0.5",
         "eslint": "^10.13.0",
