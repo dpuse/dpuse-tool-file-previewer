@@ -132,8 +132,8 @@ async function previewFileBytes(fileBytes: Uint8Array, extension: string | undef
     };
 }
 
-// A type 'file-type' identified. XML is text and states its own encoding. The other formats keep their encoding inside
-// the file, where the library that reads each format finds it, so it is not worked out here.
+// A type 'file-type' identified. XML is text and states its own encoding. The other types are mostly binary, so until
+// each has its own reader their bytes are shown as text one character per byte, with no encoding reported.
 function previewDetectedFileType(fileBytes: Uint8Array, fileTypeConfig: FileTypeResult): FilePreviewResult {
     const dataFileTypeConfig = AUTO_DETECTABLE_DATA_FILE_TYPE_MAP[fileTypeConfig.ext];
     const dataFormatId = dataFileTypeConfig?.isSupported === true ? (fileTypeConfig.ext as DataFormatId) : undefined;
@@ -157,8 +157,20 @@ function previewDetectedFileType(fileBytes: Uint8Array, fileTypeConfig: FileType
         encodingConfidenceLevel: undefined,
         encodingCandidates: undefined,
         fileTypeConfig,
-        text: undefined
+        text: decodeBytesAsCharacters(fileBytes)
     };
+}
+
+// Binary bytes are not valid UTF-8, which would show most of them as replacement characters. Windows-1252 gives every
+// byte a character, so readable parts such as 'PAR1' or a column name still show. Control characters, which would
+// disturb the display, are shown as a middle dot, apart from the tab and the line breaks.
+function decodeBytesAsCharacters(fileBytes: Uint8Array): string {
+    const characters = Array.from(new TextDecoder('windows-1252').decode(fileBytes), (character) => {
+        const codePoint = character.codePointAt(0) ?? 0;
+        const isControl = (codePoint < 0x20 && character !== '\t' && character !== '\n' && character !== '\r') || (codePoint >= 0x7f && codePoint <= 0x9f);
+        return isControl ? '·' : character;
+    });
+    return characters.join('');
 }
 
 /**

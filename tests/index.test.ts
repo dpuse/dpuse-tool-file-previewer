@@ -221,7 +221,8 @@ describe('Tool', () => {
 
         expect(preview.fileTypeConfig?.ext).toBe('pdf');
         expect(preview.dataFormatId).toBeUndefined();
-        expect(preview.text).toBeUndefined();
+        expect(preview.text).toBe('%PDF-1.7\n');
+        expect(preview.encodingId).toBeUndefined();
     });
 
     it('decodes XML in the encoding its declaration names', async () => {
@@ -261,6 +262,15 @@ describe('Tool', () => {
 
         expect(preview.fileTypeConfig?.ext).toBe('png');
         expect(preview.dataFormatId).toBeUndefined();
+    });
+
+    it('shows a binary file one character per byte, with control characters as dots', async () => {
+        stubFetchBytes(PNG_BYTES);
+
+        const preview = await previewFile();
+
+        expect(preview.text).toBe('\u{2030}PNG\r\n\u{B7}\n\u{B7}\u{B7}\u{B7}\rIHDR'); // 0x89 is '‰' in Windows-1252.
+        expect(preview.encodingId).toBeUndefined();
     });
 
     it('returns nothing to preview for an empty file', async () => {
