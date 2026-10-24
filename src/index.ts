@@ -17,8 +17,10 @@ export interface FilePreviewResult {
     encodingConfidenceLevel: number | undefined;
     encodingCandidates: EncodingDetectionConfig[] | undefined; // Every encoding scoring at least the minimum confidence, best first.
     fileTypeConfig: FileTypeResult | undefined;
+    isComplete: boolean; // Whether the preview holds the whole file rather than only its start.
     text: string | undefined;
 }
+type PreviewContent = Omit<FilePreviewResult, 'isComplete'>;
 type DataFileStructure =
     | 'table' // single native table
     | 'records' // schema'd records, may need flattening
@@ -77,20 +79,29 @@ const AUTO_DETECTABLE_DATA_FILE_TYPE_MAP: Record<string, DataFileTypeConfig> = {
 export class Tool {
     // 'minimumConfidenceLevel' (0 to 1) sets which encodings the candidate list includes. The best is always included.
     async previewFile(url: string, signal: AbortSignal, chunkSize?: number, minimumConfidenceLevel = DEFAULT_MINIMUM_CONFIDENCE_LEVEL): Promise<FilePreviewResult> {
-        const response = await fetch(encodeURI(url), { headers: { Range: `bytes=0-${String((chunkSize ?? DEFAULT_PREVIEW_CHUNK_SIZE) - 1)}` }, signal }); // Range ends are inclusive.
+        const requestedByteCount = chunkSize ?? DEFAULT_PREVIEW_CHUNK_SIZE;
+        const response = await fetch(encodeURI(url), { headers: { Range: `bytes=0-${String(requestedByteCount - 1)}` }, signal }); // Range ends are inclusive.
         const extension = extractExtensionFromPath(new URL(url).pathname)?.toLowerCase();
         // A file with no bytes has no first byte to send, so the store answers 'Range Not Satisfiable' (416).
-        if (response.status === 416) return await previewFileBytes(new Uint8Array(0), extension, minimumConfidenceLevel);
+        if (response.status === 416) return { ...(await previewFileBytes(new Uint8Array(0), extension, minimumConfidenceLevel, true)), isComplete: true };
         if (!response.ok) throw await buildFetchError(response, `Failed to fetch '${url}' file.`, 'dpuse-tool-file-previewer.previewRemoteFile');
 
         const fileBytes = new Uint8Array(await response.arrayBuffer());
-        return await previewFileBytes(fileBytes, extension, minimumConfidenceLevel);
+        const isComplete = determineIsComplete(response, fileBytes.length, requestedByteCount);
+        return { ...(await previewFileBytes(fileBytes, extension, minimumConfidenceLevel, isComplete)), isComplete };
     }
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function previewFileBytes(fileBytes: Uint8Array, extension: string | undefined, minimumConfidenceLevel: number): Promise<FilePreviewResult> {
+// The store reports the whole file's size in 'Content-Range'. Without it, a store that ignored the range sent the whole
+// file, and one that sent fewer bytes than asked for reached the end.
+function determineIsComplete(response: Response, byteCount: number, requestedByteCount: number): boolean {
+    const totalByteCount = /\/(\d+)$/.exec(response.headers.get('content-range') ?? '')?.[1];
+    return totalByteCount == null ? response.status !== 206 || byteCount < requestedByteCount : byteCount >= Number(totalByteCount);
+}
+
+async function previewFileBytes(fileBytes: Uint8Array, extension: string | undefined, minimumConfidenceLevel: number, isComplete: boolean): Promise<PreviewContent> {
     if (fileBytes.length === 0) {
         return {
             bytes: fileBytes,
@@ -104,7 +115,7 @@ async function previewFileBytes(fileBytes: Uint8Array, extension: string | undef
     }
 
     const fileTypeConfig = await fileTypeFromBuffer(fileBytes);
-    if (fileTypeConfig != null) return previewDetectedFileType(fileBytes, fileTypeConfig);
+    if (fileTypeConfig != null) return previewDetectedFileType(fileBytes, fileTypeConfig, isComplete);
 
     // Not identified by its content, so assumed to be text. JSON and JSON Lines are checked first, because their strict
     // syntax makes the check reliable whatever the extension. Otherwise the extension tells markdown apart, which content
@@ -122,7 +133,7 @@ async function previewFileBytes(fileBytes: Uint8Array, extension: string | undef
     // at the full list jschardet returns (in the test, the best was the only one above the default 0.2), and
     // whether 'encodingId' should report the candidate actually used, which may then differ from the first entry
     // in 'encodingCandidates'.
-    const decodedResult = decodeFileBytes(fileBytes, encodingCandidates[0] ?? FALLBACK_ENCODING);
+    const decodedResult = decodeFileBytes(fileBytes, encodingCandidates[0] ?? FALLBACK_ENCODING, isComplete);
     return {
         bytes: fileBytes,
         dataFormatId: determineTextDataFormatId(decodedResult.text, extension),
@@ -136,11 +147,11 @@ async function previewFileBytes(fileBytes: Uint8Array, extension: string | undef
 
 // A type 'file-type' identified. XML is text and states its own encoding. The other types are mostly binary, so until
 // each has its own reader their bytes are shown as text one character per byte, with no encoding reported.
-function previewDetectedFileType(fileBytes: Uint8Array, fileTypeConfig: FileTypeResult): FilePreviewResult {
+function previewDetectedFileType(fileBytes: Uint8Array, fileTypeConfig: FileTypeResult, isComplete: boolean): PreviewContent {
     const dataFileTypeConfig = AUTO_DETECTABLE_DATA_FILE_TYPE_MAP[fileTypeConfig.ext];
     const dataFormatId = dataFileTypeConfig?.isSupported === true ? (fileTypeConfig.ext as DataFormatId) : undefined;
     if (fileTypeConfig.ext === 'xml') {
-        const decodedResult = decodeFileBytes(fileBytes, { id: determineXMLEncodingId(fileBytes), confidenceLevel: 1 });
+        const decodedResult = decodeFileBytes(fileBytes, { id: determineXMLEncodingId(fileBytes), confidenceLevel: 1 }, isComplete);
         return {
             bytes: fileBytes,
             dataFormatId,
@@ -218,14 +229,16 @@ function determineXMLEncodingId(fileBytes: Uint8Array): string {
 // either: they assume UTF-8 and let the user choose from common code pages. A manual encoding override in the app,
 // prompted when jschardet's confidence is low, is the better next step.
 /**
- * Decode file bytes to text.
+ * Decode file bytes to text. A preview cut short ends part-way through a line, which is dropped. A whole file keeps its
+ * last line.
  */
-function decodeFileBytes(fileBytes: Uint8Array, encoding: DecodingEncoding): { encoding: DecodingEncoding; text: string } {
+function decodeFileBytes(fileBytes: Uint8Array, encoding: DecodingEncoding, isComplete: boolean): { encoding: DecodingEncoding; text: string } {
+    const textBytes = isComplete ? fileBytes : truncateData(fileBytes);
     try {
-        const text = new TextDecoder(resolveDecoderId(encoding.id)).decode(truncateData(fileBytes));
+        const text = new TextDecoder(resolveDecoderId(encoding.id)).decode(textBytes);
         return { encoding, text };
     } catch {
-        const text = new TextDecoder(FALLBACK_ENCODING.id, { fatal: false }).decode(truncateData(fileBytes));
+        const text = new TextDecoder(FALLBACK_ENCODING.id, { fatal: false }).decode(textBytes);
         return { encoding: FALLBACK_ENCODING, text };
     }
 }

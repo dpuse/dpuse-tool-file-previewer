@@ -11,8 +11,12 @@ const URL = 'https://sample-data-eu.dpuse.app/fileStore/people.csv';
 const PDF_BYTES = new TextEncoder().encode('%PDF-1.7\n');
 const PNG_BYTES = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0x0d, 0x49, 0x48, 0x44, 0x52]);
 
-function stubFetchBytes(bytes: Uint8Array<ArrayBuffer> | string): ReturnType<typeof vi.fn> {
-    const fetchMock = vi.fn().mockResolvedValue(new Response(typeof bytes === 'string' ? bytes : new Blob([bytes])));
+// Answers as the file store does for the start of a larger file: a partial range of a whole file 100 bytes longer. A
+// whole file, or an empty one, comes back in full.
+function stubFetchBytes(bytes: Uint8Array<ArrayBuffer> | string, isWholeFile = false): ReturnType<typeof vi.fn> {
+    const body = typeof bytes === 'string' ? new TextEncoder().encode(bytes) : bytes;
+    const init = isWholeFile || body.length === 0 ? {} : { status: 206, headers: { 'Content-Range': `bytes 0-${String(body.length - 1)}/${String(body.length + 100)}` } };
+    const fetchMock = vi.fn().mockResolvedValue(new Response(new Blob([body]), init));
     vi.stubGlobal('fetch', fetchMock);
     return fetchMock;
 }
@@ -282,6 +286,7 @@ describe('Tool', () => {
             encodingId: undefined,
             encodingConfidenceLevel: undefined,
             fileTypeConfig: undefined,
+            isComplete: true,
             text: undefined
         });
     });
@@ -293,6 +298,32 @@ describe('Tool', () => {
 
         expect(preview.bytes).toEqual(new Uint8Array(0));
         expect(preview.text).toBeUndefined();
+    });
+
+    it('reports a whole file as complete and keeps its last line', async () => {
+        stubFetchBytes('name,age\nAda,36', true);
+
+        const preview = await previewFile();
+
+        expect(preview.isComplete).toBe(true);
+        expect(preview.text).toBe('name,age\nAda,36');
+    });
+
+    it('reports the start of a larger file as not complete', async () => {
+        stubFetchBytes('name,age\nAda,36\nGra');
+
+        const preview = await previewFile();
+
+        expect(preview.isComplete).toBe(false);
+        expect(preview.text).toBe('name,age\nAda,36');
+    });
+
+    it('reports a range that reaches the end of the file as complete', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('a,b\n1,2', { status: 206, headers: { 'Content-Range': 'bytes 0-6/7' } })));
+
+        const preview = await previewFile();
+
+        expect(preview.isComplete).toBe(true);
     });
 
     it('rejects when the file cannot be fetched', async () => {
