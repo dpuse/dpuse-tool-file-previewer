@@ -41,7 +41,6 @@ interface DataFileTypeConfig {
     label: string;
     structure: DataFileStructure;
     isAutoDetectable: boolean;
-    isSupported: boolean;
 }
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -67,16 +66,18 @@ const MARKDOWN_EXTENSIONS = new Set(['markdown', 'md']);
 const MARKDOWN_MIME_TYPE = 'text/markdown';
 const UNKNOWN_MIME_TYPE = 'application/octet-stream';
 
-const AUTO_DETECTABLE_DATA_FILE_TYPE_MAP: Record<string, DataFileTypeConfig> = {
-    arrow: { label: 'Columnar format for tables of data.', structure: 'table', isAutoDetectable: true, isSupported: false },
-    avro: { label: 'Object container file developed by Apache Avro.', structure: 'records', isAutoDetectable: true, isSupported: false },
-    ods: { label: 'OpenDocument for spreadsheets.', structure: 'workbook', isAutoDetectable: true, isSupported: false },
-    parquet: { label: 'Apache Parquet.', structure: 'table', isAutoDetectable: true, isSupported: false },
-    sav: { label: 'SPSS statistical data file.', structure: 'table', isAutoDetectable: true, isSupported: false },
-    sqlite: { label: 'SQLite file.', structure: 'database', isAutoDetectable: true, isSupported: false },
-    xlsx: { label: 'Microsoft Excel document.', structure: 'workbook', isAutoDetectable: true, isSupported: false },
-    xlsm: { label: 'Microsoft Excel macro-enabled document.', structure: 'workbook', isAutoDetectable: true, isSupported: false },
-    xml: { label: 'eXtensible markup language.', structure: 'tree', isAutoDetectable: true, isSupported: false }
+// Keyed by the extension 'file-type' reports, which is also the format's id. Whether a format can be read is up to the
+// app and the connectors, which have the readers, so every one listed here is reported as itself.
+const AUTO_DETECTABLE_DATA_FILE_TYPE_MAP: Partial<Record<DataFormatId, DataFileTypeConfig>> = {
+    arrow: { label: 'Columnar format for tables of data.', structure: 'table', isAutoDetectable: true },
+    avro: { label: 'Object container file developed by Apache Avro.', structure: 'records', isAutoDetectable: true },
+    ods: { label: 'OpenDocument for spreadsheets.', structure: 'workbook', isAutoDetectable: true },
+    parquet: { label: 'Apache Parquet.', structure: 'table', isAutoDetectable: true },
+    sav: { label: 'SPSS statistical data file.', structure: 'table', isAutoDetectable: true },
+    sqlite: { label: 'SQLite file.', structure: 'database', isAutoDetectable: true },
+    xlsx: { label: 'Microsoft Excel document.', structure: 'workbook', isAutoDetectable: true },
+    xlsm: { label: 'Microsoft Excel macro-enabled document.', structure: 'workbook', isAutoDetectable: true },
+    xml: { label: 'eXtensible markup language.', structure: 'tree', isAutoDetectable: true }
 };
 
 // ── Tools ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -159,8 +160,7 @@ async function previewFileBytes(fileBytes: Uint8Array, isMarkdown: boolean, mini
 // A type 'file-type' identified. XML is text and states its own encoding. The other types are mostly binary, so until
 // each has its own reader their bytes are shown as text one character per byte, with no encoding reported.
 function previewDetectedFileType(fileBytes: Uint8Array, fileTypeConfig: FileTypeResult, isComplete: boolean): PreviewContent {
-    const dataFileTypeConfig = AUTO_DETECTABLE_DATA_FILE_TYPE_MAP[fileTypeConfig.ext];
-    const dataFormatId = dataFileTypeConfig?.isSupported === true ? (fileTypeConfig.ext as DataFormatId) : undefined;
+    const dataFormatId = Object.hasOwn(AUTO_DETECTABLE_DATA_FILE_TYPE_MAP, fileTypeConfig.ext) ? (fileTypeConfig.ext as DataFormatId) : undefined; // A type that is not data, such as a PDF or an image, has no format.
     if (fileTypeConfig.ext === 'xml') {
         const decodedResult = decodeFileBytes(fileBytes, { id: determineXMLEncodingId(fileBytes), confidenceLevel: 1 }, isComplete);
         return {

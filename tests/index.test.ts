@@ -248,7 +248,7 @@ describe('Tool', () => {
         expect(preview.text).toBe(text);
     });
 
-    it('identifies a known binary format it cannot yet read', async () => {
+    it('identifies a known binary file that is not data, with no format', async () => {
         stubFetchBytes(PDF_BYTES);
 
         const preview = await previewFile();
@@ -259,12 +259,23 @@ describe('Tool', () => {
         expect(preview.encodingId).toBeUndefined();
     });
 
+    it('reports a detected data format as itself, though nothing can read it yet', async () => {
+        stubFetchBytes('SQLite format 3\0');
+
+        const preview = await previewFile();
+
+        expect(preview.fileTypeConfig?.ext).toBe('sqlite');
+        expect(preview.dataFormatId).toBe('sqlite');
+        expect(preview.encodingId).toBeUndefined();
+    });
+
     it('decodes XML in the encoding its declaration names', async () => {
         stubFetchBytes(encodeSingleByte('<?xml version="1.0" encoding="ISO-8859-1"?>\n<name>Hélène</name>\n'));
 
         const preview = await previewFile();
 
         expect(preview.fileTypeConfig?.ext).toBe('xml');
+        expect(preview.dataFormatId).toBe('xml');
         expect(preview.encodingId).toBe('ISO-8859-1');
         expect(preview.encodingConfidenceLevel).toBe(1);
         expect(preview.text).toBe('<?xml version="1.0" encoding="ISO-8859-1"?>\n<name>Hélène</name>');
