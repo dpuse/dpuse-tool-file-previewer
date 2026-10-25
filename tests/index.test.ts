@@ -39,6 +39,21 @@ function encodeMacRomanCSV(): Uint8Array<ArrayBuffer> {
     return Uint8Array.from(text, (character) => macRomanBytes[character] ?? character.codePointAt(0) ?? 0);
 }
 
+// A ZIP holding only a '[Content_Types].xml' that names a macro-enabled workbook, which is all 'file-type' reads to
+// report XLSM. Stored, not compressed, and with no checksum, which 'file-type' does not check.
+function encodeXLSMBytes(): Uint8Array<ArrayBuffer> {
+    const nameBytes = new TextEncoder().encode('[Content_Types].xml');
+    const contentBytes = new TextEncoder().encode('<Types><Override ContentType="application/vnd.ms-excel.sheet.macroEnabled.main+xml"/></Types>');
+    const header = new Uint8Array(30);
+    const headerView = new DataView(header.buffer);
+    headerView.setUint32(0, 0x04_03_4b_50, true); // Local file header signature.
+    headerView.setUint16(4, 20, true); // Version needed to extract.
+    headerView.setUint32(18, contentBytes.length, true); // Compressed size.
+    headerView.setUint32(22, contentBytes.length, true); // Uncompressed size.
+    headerView.setUint16(26, nameBytes.length, true); // File name length.
+    return Uint8Array.from([...header, ...nameBytes, ...contentBytes]);
+}
+
 // Each character low byte first, after the 'FF FE' byte order mark. Only for text without characters beyond U+FFFF,
 // which UTF-16 would split in two.
 function encodeUTF16LittleEndian(text: string): Uint8Array<ArrayBuffer> {
@@ -276,6 +291,15 @@ describe('Tool', () => {
         expect(preview.encodingId).toBeUndefined();
     });
 
+    it('reports a macro-enabled workbook as an Excel workbook', async () => {
+        stubFetchBytes(encodeXLSMBytes());
+
+        const preview = await previewFile();
+
+        expect(preview.fileTypeConfig?.ext).toBe('xlsm');
+        expect(preview.dataFormatId).toBe('xlsx');
+    });
+
     it('decodes XML in the encoding its declaration names', async () => {
         stubFetchBytes(encodeSingleByte('<?xml version="1.0" encoding="ISO-8859-1"?>\n<name>Hélène</name>\n'));
 
@@ -397,6 +421,22 @@ describe('Tool', () => {
             const preview = await previewFileWithChoices('dtv', undefined);
 
             expect(preview.dataFormatId).toBe('dtv');
+        });
+
+        it('reads a file chosen to be read as markdown in the larger markdown chunk', async () => {
+            const fetchMock = stubFetchBytes('# Title\n');
+
+            await previewFileWithChoices('markdown', undefined);
+
+            expect(fetchMock).toHaveBeenCalledWith(URL, expect.objectContaining({ headers: { Range: 'bytes=0-65535' } }));
+        });
+
+        it('reads a markdown file chosen to be read as delimited text in the usual chunk', async () => {
+            const fetchMock = stubFetchBytes('a,b\n');
+
+            await new Tool().previewFile(URL, new AbortController().signal, undefined, 'text/markdown', undefined, { dataFormatId: 'dtv', encodingId: undefined });
+
+            expect(fetchMock).toHaveBeenCalledWith(URL, expect.objectContaining({ headers: { Range: 'bytes=0-4095' } }));
         });
 
         it('decodes XML in the encoding chosen, rather than the one its declaration names', async () => {

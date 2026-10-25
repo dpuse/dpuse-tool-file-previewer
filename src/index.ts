@@ -43,6 +43,7 @@ interface JSONPosition {
 type DecodingEncoding = Omit<EncodingDetectionConfig, 'id'> & { id: string }; // An XML file can name any encoding, not just the ids detection reports.
 
 interface DataFileTypeConfig {
+    dataFormatId: DataFormatId;
     label: string;
     structure: DataFileStructure;
     isAutoDetectable: boolean;
@@ -71,18 +72,19 @@ const MARKDOWN_EXTENSIONS = new Set(['markdown', 'md']);
 const MARKDOWN_MIME_TYPE = 'text/markdown';
 const UNKNOWN_MIME_TYPE = 'application/octet-stream';
 
-// Keyed by the extension 'file-type' reports, which is also the format's id. Whether a format can be read is up to the
-// app and the connectors, which have the readers, so every one listed here is reported as itself.
-const AUTO_DETECTABLE_DATA_FILE_TYPE_MAP: Partial<Record<DataFormatId, DataFileTypeConfig>> = {
-    arrow: { label: 'Columnar format for tables of data.', structure: 'table', isAutoDetectable: true },
-    avro: { label: 'Object container file developed by Apache Avro.', structure: 'records', isAutoDetectable: true },
-    ods: { label: 'OpenDocument for spreadsheets.', structure: 'workbook', isAutoDetectable: true },
-    parquet: { label: 'Apache Parquet.', structure: 'table', isAutoDetectable: true },
-    sav: { label: 'SPSS statistical data file.', structure: 'table', isAutoDetectable: true },
-    sqlite: { label: 'SQLite file.', structure: 'database', isAutoDetectable: true },
-    xlsx: { label: 'Microsoft Excel document.', structure: 'workbook', isAutoDetectable: true },
-    xlsm: { label: 'Microsoft Excel macro-enabled document.', structure: 'workbook', isAutoDetectable: true },
-    xml: { label: 'eXtensible markup language.', structure: 'tree', isAutoDetectable: true }
+// Keyed by the extension 'file-type' reports. Whether a format can be read is up to the app and the connectors, which
+// have the readers, so every type listed here is reported as its format. A macro-enabled workbook is read as any other,
+// because the macros are kept apart from the data, so XLSM is reported as XLSX.
+const AUTO_DETECTABLE_DATA_FILE_TYPE_MAP: Record<string, DataFileTypeConfig> = {
+    arrow: { dataFormatId: 'arrow', label: 'Columnar format for tables of data.', structure: 'table', isAutoDetectable: true },
+    avro: { dataFormatId: 'avro', label: 'Object container file developed by Apache Avro.', structure: 'records', isAutoDetectable: true },
+    ods: { dataFormatId: 'ods', label: 'OpenDocument for spreadsheets.', structure: 'workbook', isAutoDetectable: true },
+    parquet: { dataFormatId: 'parquet', label: 'Apache Parquet.', structure: 'table', isAutoDetectable: true },
+    sav: { dataFormatId: 'sav', label: 'SPSS statistical data file.', structure: 'table', isAutoDetectable: true },
+    sqlite: { dataFormatId: 'sqlite', label: 'SQLite file.', structure: 'database', isAutoDetectable: true },
+    xlsx: { dataFormatId: 'xlsx', label: 'Microsoft Excel document.', structure: 'workbook', isAutoDetectable: true },
+    xlsm: { dataFormatId: 'xlsx', label: 'Microsoft Excel macro-enabled document.', structure: 'workbook', isAutoDetectable: true },
+    xml: { dataFormatId: 'xml', label: 'eXtensible markup language.', structure: 'tree', isAutoDetectable: true }
 };
 
 // ── Tools ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -97,7 +99,9 @@ export class Tool {
         minimumConfidenceLevel = DEFAULT_MINIMUM_CONFIDENCE_LEVEL,
         choices?: PreviewChoices
     ): Promise<FilePreviewResult> {
-        const isMarkdown = determineIsMarkdown(mimeType, extractExtensionFromPath(new URL(url).pathname)?.toLowerCase());
+        // A format the user chose decides, so a file chosen to be read as markdown is read in the larger markdown chunk.
+        const chosenDataFormatId = choices?.dataFormatId;
+        const isMarkdown = chosenDataFormatId == null ? determineIsMarkdown(mimeType, extractExtensionFromPath(new URL(url).pathname)?.toLowerCase()) : chosenDataFormatId === 'markdown';
         const requestedByteCount = chunkSize ?? (isMarkdown ? MARKDOWN_PREVIEW_CHUNK_SIZE : DEFAULT_PREVIEW_CHUNK_SIZE);
         const response = await fetch(encodeURI(url), { headers: { Range: `bytes=0-${String(requestedByteCount - 1)}` }, signal }); // Range ends are inclusive.
         // A file with no bytes has no first byte to send, so the store answers 'Range Not Satisfiable' (416).
@@ -173,7 +177,7 @@ async function previewFileBytes(
 // each has its own reader their bytes are shown as text one character per byte, with no encoding reported, even one the
 // user chose.
 function previewDetectedFileType(fileBytes: Uint8Array, fileTypeConfig: FileTypeResult, isComplete: boolean, choices?: PreviewChoices): PreviewContent {
-    const detectedDataFormatId = Object.hasOwn(AUTO_DETECTABLE_DATA_FILE_TYPE_MAP, fileTypeConfig.ext) ? (fileTypeConfig.ext as DataFormatId) : undefined; // A type that is not data, such as a PDF or an image, has no format.
+    const detectedDataFormatId = Object.hasOwn(AUTO_DETECTABLE_DATA_FILE_TYPE_MAP, fileTypeConfig.ext) ? AUTO_DETECTABLE_DATA_FILE_TYPE_MAP[fileTypeConfig.ext]?.dataFormatId : undefined; // A type that is not data, such as a PDF or an image, has no format.
     const dataFormatId = choices?.dataFormatId ?? detectedDataFormatId;
     if (fileTypeConfig.ext === 'xml') {
         const encoding = constructChosenEncoding(choices) ?? { id: determineXMLEncodingId(fileBytes), confidenceLevel: 1 };
