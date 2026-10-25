@@ -20,6 +20,11 @@ export interface FilePreviewResult {
     isComplete: boolean; // Whether the preview holds the whole file rather than only its start.
     text: string | undefined;
 }
+// What the user chose in place of what detection found. Either can be left to detection.
+export interface PreviewChoices {
+    dataFormatId: DataFormatId | undefined;
+    encodingId: string | undefined;
+}
 type PreviewContent = Omit<FilePreviewResult, 'isComplete'>;
 type DataFileStructure =
     | 'table' // single native table
@@ -89,7 +94,8 @@ export class Tool {
         signal: AbortSignal,
         chunkSize?: number,
         mimeType?: string,
-        minimumConfidenceLevel = DEFAULT_MINIMUM_CONFIDENCE_LEVEL
+        minimumConfidenceLevel = DEFAULT_MINIMUM_CONFIDENCE_LEVEL,
+        choices?: PreviewChoices
     ): Promise<FilePreviewResult> {
         const isMarkdown = determineIsMarkdown(mimeType, extractExtensionFromPath(new URL(url).pathname)?.toLowerCase());
         const requestedByteCount = chunkSize ?? (isMarkdown ? MARKDOWN_PREVIEW_CHUNK_SIZE : DEFAULT_PREVIEW_CHUNK_SIZE);
@@ -100,7 +106,7 @@ export class Tool {
 
         const fileBytes = new Uint8Array(await response.arrayBuffer());
         const isComplete = determineIsComplete(response, fileBytes.length, requestedByteCount);
-        return { ...(await previewFileBytes(fileBytes, isMarkdown, minimumConfidenceLevel, isComplete)), isComplete };
+        return { ...(await previewFileBytes(fileBytes, isMarkdown, minimumConfidenceLevel, isComplete, choices)), isComplete };
     }
 }
 
@@ -113,7 +119,13 @@ function determineIsComplete(response: Response, byteCount: number, requestedByt
     return totalByteCount == null ? response.status !== 206 || byteCount < requestedByteCount : byteCount >= Number(totalByteCount);
 }
 
-async function previewFileBytes(fileBytes: Uint8Array, isMarkdown: boolean, minimumConfidenceLevel: number, isComplete: boolean): Promise<PreviewContent> {
+async function previewFileBytes(
+    fileBytes: Uint8Array,
+    isMarkdown: boolean,
+    minimumConfidenceLevel: number,
+    isComplete: boolean,
+    choices?: PreviewChoices
+): Promise<PreviewContent> {
     if (fileBytes.length === 0) {
         return {
             bytes: fileBytes,
@@ -127,7 +139,7 @@ async function previewFileBytes(fileBytes: Uint8Array, isMarkdown: boolean, mini
     }
 
     const fileTypeConfig = await fileTypeFromBuffer(fileBytes);
-    if (fileTypeConfig != null) return previewDetectedFileType(fileBytes, fileTypeConfig, isComplete);
+    if (fileTypeConfig != null) return previewDetectedFileType(fileBytes, fileTypeConfig, isComplete, choices);
 
     // Not identified by its content, so assumed to be text. JSON and JSON Lines are checked first, because their strict
     // syntax makes the check reliable whatever the extension. Otherwise the MIME type or extension tells markdown apart,
@@ -145,10 +157,10 @@ async function previewFileBytes(fileBytes: Uint8Array, isMarkdown: boolean, mini
     // at the full list jschardet returns (in the test, the best was the only one above the default 0.2), and
     // whether 'encodingId' should report the candidate actually used, which may then differ from the first entry
     // in 'encodingCandidates'.
-    const decodedResult = decodeFileBytes(fileBytes, encodingCandidates[0] ?? FALLBACK_ENCODING, isComplete);
+    const decodedResult = decodeFileBytes(fileBytes, constructChosenEncoding(choices) ?? encodingCandidates[0] ?? FALLBACK_ENCODING, isComplete);
     return {
         bytes: fileBytes,
-        dataFormatId: determineTextDataFormatId(decodedResult.text, isMarkdown),
+        dataFormatId: choices?.dataFormatId ?? determineTextDataFormatId(decodedResult.text, isMarkdown),
         encodingId: decodedResult.encoding.id,
         encodingConfidenceLevel: decodedResult.encoding.confidenceLevel,
         encodingCandidates,
@@ -158,11 +170,14 @@ async function previewFileBytes(fileBytes: Uint8Array, isMarkdown: boolean, mini
 }
 
 // A type 'file-type' identified. XML is text and states its own encoding. The other types are mostly binary, so until
-// each has its own reader their bytes are shown as text one character per byte, with no encoding reported.
-function previewDetectedFileType(fileBytes: Uint8Array, fileTypeConfig: FileTypeResult, isComplete: boolean): PreviewContent {
-    const dataFormatId = Object.hasOwn(AUTO_DETECTABLE_DATA_FILE_TYPE_MAP, fileTypeConfig.ext) ? (fileTypeConfig.ext as DataFormatId) : undefined; // A type that is not data, such as a PDF or an image, has no format.
+// each has its own reader their bytes are shown as text one character per byte, with no encoding reported, even one the
+// user chose.
+function previewDetectedFileType(fileBytes: Uint8Array, fileTypeConfig: FileTypeResult, isComplete: boolean, choices?: PreviewChoices): PreviewContent {
+    const detectedDataFormatId = Object.hasOwn(AUTO_DETECTABLE_DATA_FILE_TYPE_MAP, fileTypeConfig.ext) ? (fileTypeConfig.ext as DataFormatId) : undefined; // A type that is not data, such as a PDF or an image, has no format.
+    const dataFormatId = choices?.dataFormatId ?? detectedDataFormatId;
     if (fileTypeConfig.ext === 'xml') {
-        const decodedResult = decodeFileBytes(fileBytes, { id: determineXMLEncodingId(fileBytes), confidenceLevel: 1 }, isComplete);
+        const encoding = constructChosenEncoding(choices) ?? { id: determineXMLEncodingId(fileBytes), confidenceLevel: 1 };
+        const decodedResult = decodeFileBytes(fileBytes, encoding, isComplete);
         return {
             bytes: fileBytes,
             dataFormatId,
@@ -243,6 +258,11 @@ function determineXMLEncodingId(fileBytes: Uint8Array): string {
  * Decode file bytes to text. A preview cut short ends part-way through a line, which is dropped. A whole file keeps its
  * last line.
  */
+// An encoding the user chose is certain, as one an XML declaration states is.
+function constructChosenEncoding(choices: PreviewChoices | undefined): DecodingEncoding | undefined {
+    return choices?.encodingId == null ? undefined : { id: choices.encodingId, confidenceLevel: 1 };
+}
+
 function decodeFileBytes(fileBytes: Uint8Array, encoding: DecodingEncoding, isComplete: boolean): { encoding: DecodingEncoding; text: string } {
     const textBytes = isComplete ? fileBytes : truncateData(fileBytes);
     try {
