@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-tool-file-previewer",
-    "version": "1.0.123",
+    "version": "1.0.124",
     "private": false,
     "description": "...",
     "license": "MIT",
@@ -61,9 +61,9 @@
         "test": "node -e \"import('@dpuse/dpuse-development').then(m => m.testProject())\""
     },
     "dependencies": {
-        "@dpuse/dpuse-shared": "^1.0.142",
+        "@dpuse/dpuse-shared": "^1.0.144",
         "file-type": "^22.2.0",
-        "jschardet": "^4.0.0"
+        "jschardet": "^4.1.0"
     },
     "devDependencies": {
         "@dpuse/dpuse-development": "^1.0.133",

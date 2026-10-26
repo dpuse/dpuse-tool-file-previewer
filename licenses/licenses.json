@@ -6,13 +6,13 @@
         "path": "node_modules/@borewit/text-codec",
         "licenseFile": "downloads/@borewit/text-codec@0.2.2-LICENSE.txt"
     },
-    "@dpuse/dpuse-shared@1.0.142": {
+    "@dpuse/dpuse-shared@1.0.144": {
         "licenses": "MIT",
         "repository": "https://github.com/dpuse/dpuse-shared",
         "publisher": "Jonathan Terrell",
         "email": "terrell.jm@gmail.com",
         "path": "node_modules/@dpuse/dpuse-shared",
-        "licenseFile": "downloads/@dpuse/dpuse-shared@1.0.142-LICENSE.txt"
+        "licenseFile": "downloads/@dpuse/dpuse-shared@1.0.144-LICENSE.txt"
     },
     "@tokenizer/inflate@0.5.1": {
         "licenses": "MIT",
@@ -36,12 +36,12 @@
         "path": "node_modules/file-type",
         "licenseFile": "downloads/file-type@22.2.0-LICENSE.txt"
     },
-    "jschardet@4.0.0": {
+    "jschardet@4.1.0": {
         "licenses": "0BSD",
         "repository": "https://github.com/aadsm/jschardet",
         "publisher": "António Afonso",
         "path": "node_modules/jschardet",
-        "licenseFile": "downloads/jschardet@4.0.0-LICENSE.txt"
+        "licenseFile": "downloads/jschardet@4.1.0-LICENSE.txt"
     },
     "ms@2.1.3": {
         "licenses": "MIT",

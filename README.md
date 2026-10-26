@@ -65,11 +65,11 @@ License data is updated each time `npm run document` is run, using [license-chec
 | Dependency                                                             | Version | License(s) | Document                                                              |
 | :--------------------------------------------------------------------- | :-----: | :--------- | :-------------------------------------------------------------------- |
 | [@borewit/text-codec](https://github.com/Borewit/text-codec)           |  0.2.2  | MIT        | [LICENSE](licenses/downloads/@borewit/text-codec@0.2.2-LICENSE.txt)   |
-| [@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)           | 1.0.142 | MIT        | [LICENSE](licenses/downloads/@dpuse/dpuse-shared@1.0.142-LICENSE.txt) |
+| [@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)           | 1.0.144 | MIT        | [LICENSE](licenses/downloads/@dpuse/dpuse-shared@1.0.144-LICENSE.txt) |
 | [@tokenizer/inflate](https://github.com/Borewit/tokenizer-inflate)     |  0.5.1  | MIT        | [LICENSE](licenses/downloads/@tokenizer/inflate@0.5.1-LICENSE.txt)    |
 | [debug](https://github.com/debug-js/debug)                             |  4.4.3  | MIT        | [LICENSE](licenses/downloads/debug@4.4.3-LICENSE.txt)                 |
 | [file-type](https://github.com/sindresorhus/file-type)                 | 22.2.0  | MIT        | [LICENSE](licenses/downloads/file-type@22.2.0-LICENSE.txt)            |
-| [jschardet](https://github.com/aadsm/jschardet)                        |  4.0.0  | 0BSD       | [LICENSE](licenses/downloads/jschardet@4.0.0-LICENSE.txt)             |
+| [jschardet](https://github.com/aadsm/jschardet)                        |  4.1.0  | 0BSD       | [LICENSE](licenses/downloads/jschardet@4.1.0-LICENSE.txt)             |
 | [ms](https://github.com/vercel/ms)                                     |  2.1.3  | MIT        | [LICENSE](licenses/downloads/ms@2.1.3-LICENSE.txt)                    |
 | [strtok3](https://github.com/Borewit/strtok3)                          | 10.6.2  | MIT        | [LICENSE](licenses/downloads/strtok3@10.6.2-LICENSE.txt)              |
 | [token-types](https://github.com/Borewit/token-types)                  |  6.1.2  | MIT        | [LICENSE](licenses/downloads/token-types@6.1.2-LICENSE.txt)           |
@@ -80,7 +80,7 @@ License data is updated each time `npm run document` is run, using [license-chec
 
 The dependency tree below shows how each package in the table above is reached — direct and transitive — along with its installed version, release date, and update status. A package that does not ship itself, such as one whose parts are bundled separately, is left out and what ships beneath it is shown in its place. Packages flagged ❗ have a newer version available; ⚠️ indicates a package that hasn't been updated in the last 6 months or longer. Neither flag necessarily indicates a problem: we let new releases stabilise before upgrading, and some packages are mature and stable (have limited or no dependencies), so they require no active development.
 
-- **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 1.0.142 — this month: 2026-10-25
+- **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 1.0.144 — this month: 2026-10-26
     - **[file-type](https://github.com/sindresorhus/file-type)** 22.2.0 — this month: 2026-10-14
     - **[valibot](https://github.com/open-circle/valibot)** 1.5.0 — 1 mth ago: 2026-09-09
 - **[file-type](https://github.com/sindresorhus/file-type)** 22.2.0 — this month: 2026-10-14
@@ -90,8 +90,8 @@ The dependency tree below shows how each package in the table above is reached �
     - **[strtok3](https://github.com/Borewit/strtok3)** 10.6.2 — this month: 2026-10-18
     - **[token-types](https://github.com/Borewit/token-types)** 6.1.2 — 9 mths ago: 2026-01-01 ⚠️
         - **[@borewit/text-codec](https://github.com/Borewit/text-codec)** 0.2.2 — 7 mths ago: 2026-03-11 ⚠️
-    - **[uint8array-extras](https://github.com/sindresorhus/uint8array-extras)** 1.6.0 — this month: 2026-09-26
-- **[jschardet](https://github.com/aadsm/jschardet)** 4.0.0 — this month: 2026-09-26
+    - **[uint8array-extras](https://github.com/sindresorhus/uint8array-extras)** 1.6.0 — 1 mth ago: 2026-09-26
+- **[jschardet](https://github.com/aadsm/jschardet)** 4.1.0 — this month: 2026-10-25
 
 <!-- DEPENDENCY_LICENSES_END -->
 
@@ -105,10 +105,10 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 | Chunk/Module/File                                                       | Composition                                                                                       |
 | :---------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------ |
-| **dist/dpuse-tool-file-previewer.es.js**                                | 1239.3&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;718.3&nbsp;kB&nbsp;·&nbsp;100.0%&nbsp;of&nbsp;the&nbsp;build |
-| &nbsp;&nbsp;&nbsp;&nbsp;jschardet → dist/jschardet.esm.min.js           | `██████████████████░░`&nbsp;90.6%&nbsp;·&nbsp;1122.3&nbsp;kB                                      |
-| &nbsp;&nbsp;&nbsp;&nbsp;file-type → source/index.js + 7 more            | `█░░░░░░░░░░░░░░░░░░░`&nbsp;3.7%&nbsp;·&nbsp;45.3&nbsp;kB                                         |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 8 smaller files       | `▒░░░░░░░░░░░░░░░░░░░`&nbsp;3.7%&nbsp;·&nbsp;45.3&nbsp;kB                                         |
+| **dist/dpuse-tool-file-previewer.es.js**                                | 1249.2&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;722.5&nbsp;kB&nbsp;·&nbsp;100.0%&nbsp;of&nbsp;the&nbsp;build |
+| &nbsp;&nbsp;&nbsp;&nbsp;jschardet → dist/jschardet.esm.min.js           | `██████████████████░░`&nbsp;90.6%&nbsp;·&nbsp;1132.0&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;file-type → source/index.js + 7 more            | `█░░░░░░░░░░░░░░░░░░░`&nbsp;3.6%&nbsp;·&nbsp;45.3&nbsp;kB                                         |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 8 smaller files       | `▒░░░░░░░░░░░░░░░░░░░`&nbsp;3.6%&nbsp;·&nbsp;45.3&nbsp;kB                                         |
 | &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js   | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.2%&nbsp;·&nbsp;15.4&nbsp;kB                                         |
 | &nbsp;&nbsp;&nbsp;&nbsp;strtok3 → lib/AbstractTokenizer.js + 12 more    | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.8%&nbsp;·&nbsp;9.4&nbsp;kB                                          |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 13 smaller files      | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.8%&nbsp;·&nbsp;9.4&nbsp;kB                                          |
@@ -121,7 +121,7 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 | &nbsp;&nbsp;&nbsp;&nbsp;ms → index.js                                   | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.1%&nbsp;·&nbsp;1.6&nbsp;kB                                          |
 | &nbsp;&nbsp;&nbsp;&nbsp;uint8array-extras → index.js                    | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.1%&nbsp;·&nbsp;1.2&nbsp;kB                                          |
 | &nbsp;&nbsp;&nbsp;&nbsp;token-types → lib/index.js                      | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.1%&nbsp;·&nbsp;1018&nbsp;B                                          |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)             | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.6%&nbsp;·&nbsp;19.2&nbsp;kB                                         |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)             | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.6%&nbsp;·&nbsp;19.5&nbsp;kB                                         |
 
 Bars show each row's share of its output file. ↳ rows are part of the row above.
 
