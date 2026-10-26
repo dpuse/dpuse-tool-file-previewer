@@ -226,7 +226,7 @@ describe('Tool', () => {
     });
 
     it.each([
-        ['UTF-8-SIG', [0xef, 0xbb, 0xbf, 0x61, 0x0a]],
+        ['utf-8-sig', [0xef, 0xbb, 0xbf, 0x61, 0x0a]],
         ['utf-16-be', [0xfe, 0xff, 0x00, 0x61, 0x00, 0x0a]],
         ['utf-16-le', [0xff, 0xfe, 0x61, 0x00, 0x0a, 0x00]]
     ])('reads a %s byte order mark with full confidence', async (encodingId, bytes) => {
@@ -253,14 +253,14 @@ describe('Tool', () => {
         const preview = await previewFile(0.01);
         const confidenceLevels = preview.encodingCandidates?.map(({ confidenceLevel = 0 }) => confidenceLevel) ?? [];
 
-        expect(preview.encodingCandidates?.map(({ id }) => id)).toContain('MacRoman');
+        expect(preview.encodingCandidates?.map(({ id }) => id)).toContain('macroman');
         expect(confidenceLevels).toEqual(confidenceLevels.toSorted((left, right) => right - left));
         expect(confidenceLevels.every((confidenceLevel) => confidenceLevel >= 0.01)).toBe(true);
     });
 
     it.each([
-        ['Windows-1251', 'Все люди рождаются свободными и равными в своем достоинстве и правах.'],
-        ['Windows-1252', 'Tous les êtres humains naissent libres et égaux en dignité et en droits.']
+        ['windows-1251', 'Все люди рождаются свободными и равными в своем достоинстве и правах.'],
+        ['windows-1252', 'Tous les êtres humains naissent libres et égaux en dignité et en droits.']
     ])('detects and decodes %s text', async (encodingId, text) => {
         stubFetchBytes(encodeSingleByte(`${text}\n`));
 
@@ -408,9 +408,9 @@ describe('Tool', () => {
         it('decodes text in the encoding chosen, rather than the one detected', async () => {
             stubFetchBytes(encodeMacRomanCSV());
 
-            const preview = await previewFileWithChoices(undefined, 'MacRoman');
+            const preview = await previewFileWithChoices(undefined, 'macroman');
 
-            expect(preview.encodingId).toBe('MacRoman');
+            expect(preview.encodingId).toBe('macroman');
             expect(preview.encodingConfidenceLevel).toBe(1);
             expect(preview.text).toContain('Hélène Dubois,Orléans');
         });
@@ -442,9 +442,9 @@ describe('Tool', () => {
         it('decodes XML in the encoding chosen, rather than the one its declaration names', async () => {
             stubFetchBytes(encodeSingleByte('<?xml version="1.0" encoding="UTF-8"?>\n<name>Hélène</name>\n'));
 
-            const preview = await previewFileWithChoices(undefined, 'ISO-8859-1');
+            const preview = await previewFileWithChoices(undefined, 'iso-8859-1');
 
-            expect(preview.encodingId).toBe('ISO-8859-1');
+            expect(preview.encodingId).toBe('iso-8859-1');
             expect(preview.text).toBe('<?xml version="1.0" encoding="UTF-8"?>\n<name>Hélène</name>');
         });
 

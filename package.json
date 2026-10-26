@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-tool-file-previewer",
-    "version": "1.0.124",
+    "version": "1.0.125",
     "private": false,
     "description": "...",
     "license": "MIT",
@@ -47,7 +47,7 @@
         "fsevents@2.3.3": true,
         "unrs-resolver@1.11.1": true,
         "esbuild@0.28.2": true,
-        "workerd@1.20261019.1": true
+        "workerd@1.20261023.1": true
     },
     "scripts": {
         "audit": "node -e \"import('@dpuse/dpuse-development').then(m => m.auditDependencies())\"",
@@ -61,7 +61,7 @@
         "test": "node -e \"import('@dpuse/dpuse-development').then(m => m.testProject())\""
     },
     "dependencies": {
-        "@dpuse/dpuse-shared": "^1.0.144",
+        "@dpuse/dpuse-shared": "^1.0.146",
         "file-type": "^22.2.0",
         "jschardet": "^4.1.0"
     },
@@ -77,6 +77,6 @@
         "vite": "^8.3.5",
         "vite-plugin-dts": "^5.1.2",
         "vitest": "^5.0.5",
-        "wrangler": "^4.152.0"
+        "wrangler": "^4.153.0"
     }
 }

@@ -151,13 +151,13 @@ async function previewFileBytes(
     const encodingCandidates = determineEncodings(fileBytes, minimumConfidenceLevel);
     // TODO: Decode with the first candidate the browser can decode, rather than falling back to UTF-8 when the best
     // candidate cannot be decoded. Today the best candidate always goes to 'decodeFileBytes', and if 'TextDecoder'
-    // rejects it (one of the 43 encodings jschardet detects that browsers cannot decode, e.g. 'MacLatin2' or
+    // rejects it (one of the 43 encodings jschardet detects that browsers cannot decode, e.g. 'maclatin2' or
     // 'cp437'), the file is decoded and reported as UTF-8, with no confidence. Found in October 2026 with the small
-    // mostly-ASCII Mac Roman CSV in this project's tests: jschardet's best guess was 'MacLatin2' (undecodable) and
-    // its second, at the same 0.04 confidence, the correct 'MacRoman' (decodable as 'macintosh'). Taking the first
+    // mostly-ASCII Mac Roman CSV in this project's tests: jschardet's best guess was 'maclatin2' (undecodable) and
+    // its second, at the same 0.04 confidence, the correct 'macroman' (decodable as 'macintosh'). Taking the first
     // candidate whose 'resolveDecoderId' is a name 'TextDecoder' accepts would have decoded it correctly. It would
-    // not help where the best guess is decodable but wrong, e.g. dpuse-shared's 'MacRoman.csv' sample, read as
-    // 'ISO-8859-1'. Points to settle first: whether to look only at candidates above 'minimumConfidenceLevel' or
+    // not help where the best guess is decodable but wrong, e.g. dpuse-shared's 'macroman.csv' sample, read as
+    // 'iso-8859-1'. Points to settle first: whether to look only at candidates above 'minimumConfidenceLevel' or
     // at the full list jschardet returns (in the test, the best was the only one above the default 0.2), and
     // whether 'encodingId' should report the candidate actually used, which may then differ from the first entry
     // in 'encodingCandidates'.
@@ -226,13 +226,14 @@ function determineEncodings(fileBytes: Uint8Array, minimumConfidenceLevel: numbe
     const detections = detectAll(fileBytes, { minimumThreshold: 0 });
     const candidates: EncodingDetectionConfig[] = [];
     for (const { confidence, encoding } of detections) {
-        if (encoding != null && isEncodingTypeId(encoding)) candidates.push({ confidenceLevel: confidence, id: encoding });
+        const encodingId = encoding?.toLowerCase(); // jschardet mixes cases, e.g. 'Windows-1251'; encoding ids are lower case.
+        if (encodingId != null && isEncodingTypeId(encodingId)) candidates.push({ confidenceLevel: confidence, id: encodingId });
     }
     return candidates.filter(({ confidenceLevel = 0 }, index) => index === 0 || confidenceLevel >= minimumConfidenceLevel);
 }
 
 function determineByteOrderMarkEncoding(fileBytes: Uint8Array): EncodingDetectionConfig | undefined {
-    if (fileBytes[0] === 239 && fileBytes[1] === 187 && fileBytes[2] === 191) return { confidenceLevel: 1, id: 'UTF-8-SIG' };
+    if (fileBytes[0] === 239 && fileBytes[1] === 187 && fileBytes[2] === 191) return { confidenceLevel: 1, id: 'utf-8-sig' };
     if (fileBytes[0] === 254 && fileBytes[1] === 255) return { confidenceLevel: 1, id: 'utf-16-be' };
     return fileBytes[0] === 255 && fileBytes[1] === 254 ? { confidenceLevel: 1, id: 'utf-16-le' } : undefined;
 }
