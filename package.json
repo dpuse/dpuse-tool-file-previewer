@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-tool-file-previewer",
-    "version": "1.0.125",
+    "version": "1.0.126",
     "private": false,
     "description": "...",
     "license": "MIT",
@@ -61,12 +61,12 @@
         "test": "node -e \"import('@dpuse/dpuse-development').then(m => m.testProject())\""
     },
     "dependencies": {
-        "@dpuse/dpuse-shared": "^1.0.146",
+        "@dpuse/dpuse-shared": "^1.0.155",
         "file-type": "^22.2.0",
         "jschardet": "^4.1.0"
     },
     "devDependencies": {
-        "@dpuse/dpuse-development": "^1.0.133",
+        "@dpuse/dpuse-development": "^1.0.138",
         "@dpuse/eslint-config-dpuse": "^1.0.145",
         "@types/node": "^26.6.5",
         "@vitest/coverage-v8": "^5.0.5",
@@ -77,6 +77,6 @@
         "vite": "^8.3.5",
         "vite-plugin-dts": "^5.1.2",
         "vitest": "^5.0.5",
-        "wrangler": "^4.153.0"
+        "wrangler": "^4.154.0"
     }
 }

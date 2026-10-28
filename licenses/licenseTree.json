@@ -1,14 +1,14 @@
 {
-  "version": "1.0.124",
+  "version": "1.0.125",
   "name": "@dpuse/dpuse-tool-file-previewer",
   "dependencies": {
     "@dpuse/dpuse-development": {
-      "version": "1.0.133",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.133.tgz",
+      "version": "1.0.138",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.138.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.146"
+          "version": "1.0.155"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1201,8 +1201,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.146",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.146.tgz",
+      "version": "1.0.155",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.155.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -3865,8 +3865,8 @@
       }
     },
     "wrangler": {
-      "version": "4.153.0",
-      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.153.0.tgz",
+      "version": "4.154.0",
+      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.154.0.tgz",
       "overridden": false,
       "dependencies": {
         "@cloudflare/kv-asset-handler": {
@@ -3900,8 +3900,8 @@
           "version": "2.3.3"
         },
         "miniflare": {
-          "version": "5.20261023.0-beta",
-          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261023.0-beta.tgz",
+          "version": "5.20261023.1-beta",
+          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261023.1-beta.tgz",
           "overridden": false,
           "dependencies": {
             "@cspotcode/source-map-support": {
