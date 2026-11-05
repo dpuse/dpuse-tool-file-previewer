@@ -1,14 +1,14 @@
 {
-  "version": "1.0.125",
+  "version": "1.0.127",
   "name": "@dpuse/dpuse-tool-file-previewer",
   "dependencies": {
     "@dpuse/dpuse-development": {
-      "version": "1.0.138",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.138.tgz",
+      "version": "1.0.147",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.147.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.155"
+          "version": "1.0.183"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -93,7 +93,7 @@
                       "version": "5.0.0"
                     },
                     "pacote": {
-                      "version": "21.5.1"
+                      "version": "21.5.2"
                     },
                     "proc-log": {
                       "version": "6.1.0"
@@ -645,8 +645,8 @@
                   }
                 },
                 "pacote": {
-                  "version": "21.5.1",
-                  "resolved": "https://registry.npmjs.org/pacote/-/pacote-21.5.1.tgz",
+                  "version": "21.5.2",
+                  "resolved": "https://registry.npmjs.org/pacote/-/pacote-21.5.2.tgz",
                   "overridden": false,
                   "dependencies": {
                     "@gar/promise-retry": {
@@ -1201,12 +1201,12 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.155",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.155.tgz",
+      "version": "1.0.183",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.183.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
-          "version": "22.2.0"
+          "version": "22.3.0"
         },
         "valibot": {
           "version": "1.5.0"
@@ -1214,8 +1214,8 @@
       }
     },
     "@dpuse/eslint-config-dpuse": {
-      "version": "1.0.145",
-      "resolved": "https://registry.npmjs.org/@dpuse/eslint-config-dpuse/-/eslint-config-dpuse-1.0.145.tgz",
+      "version": "1.0.149",
+      "resolved": "https://registry.npmjs.org/@dpuse/eslint-config-dpuse/-/eslint-config-dpuse-1.0.149.tgz",
       "overridden": false,
       "dependencies": {
         "@eslint-community/eslint-plugin-eslint-comments": {
@@ -1227,7 +1227,7 @@
               "version": "4.0.0"
             },
             "eslint": {
-              "version": "10.13.0"
+              "version": "10.14.0"
             },
             "ignore": {
               "version": "7.0.9",
@@ -1242,7 +1242,7 @@
           "overridden": false,
           "dependencies": {
             "eslint": {
-              "version": "10.13.0"
+              "version": "10.14.0"
             }
           }
         },
@@ -1252,7 +1252,7 @@
           "overridden": false,
           "dependencies": {
             "eslint": {
-              "version": "10.13.0"
+              "version": "10.14.0"
             }
           }
         },
@@ -1285,7 +1285,7 @@
             },
             "eslint-plugin-import": {},
             "eslint": {
-              "version": "10.13.0"
+              "version": "10.14.0"
             },
             "get-tsconfig": {
               "version": "4.13.0",
@@ -1360,39 +1360,39 @@
           "overridden": false,
           "dependencies": {
             "@typescript-eslint/types": {
-              "version": "8.72.0",
-              "resolved": "https://registry.npmjs.org/@typescript-eslint/types/-/types-8.72.0.tgz",
+              "version": "8.72.1",
+              "resolved": "https://registry.npmjs.org/@typescript-eslint/types/-/types-8.72.1.tgz",
               "overridden": false
             },
             "@typescript-eslint/utils": {
-              "version": "8.72.0",
-              "resolved": "https://registry.npmjs.org/@typescript-eslint/utils/-/utils-8.72.0.tgz",
+              "version": "8.72.1",
+              "resolved": "https://registry.npmjs.org/@typescript-eslint/utils/-/utils-8.72.1.tgz",
               "overridden": false,
               "dependencies": {
                 "@eslint-community/eslint-utils": {
                   "version": "4.10.1"
                 },
                 "@typescript-eslint/scope-manager": {
-                  "version": "8.72.0",
-                  "resolved": "https://registry.npmjs.org/@typescript-eslint/scope-manager/-/scope-manager-8.72.0.tgz",
+                  "version": "8.72.1",
+                  "resolved": "https://registry.npmjs.org/@typescript-eslint/scope-manager/-/scope-manager-8.72.1.tgz",
                   "overridden": false,
                   "dependencies": {
                     "@typescript-eslint/types": {
-                      "version": "8.72.0"
+                      "version": "8.72.1"
                     },
                     "@typescript-eslint/visitor-keys": {
-                      "version": "8.72.0"
+                      "version": "8.72.1"
                     }
                   }
                 },
                 "@typescript-eslint/types": {
-                  "version": "8.72.0"
+                  "version": "8.72.1"
                 },
                 "@typescript-eslint/typescript-estree": {
-                  "version": "8.72.0"
+                  "version": "8.72.1"
                 },
                 "eslint": {
-                  "version": "10.13.0"
+                  "version": "10.14.0"
                 },
                 "typescript": {
                   "version": "6.0.3"
@@ -1412,7 +1412,7 @@
             },
             "eslint-import-resolver-node": {},
             "eslint": {
-              "version": "10.13.0"
+              "version": "10.14.0"
             },
             "is-glob": {
               "version": "4.0.3"
@@ -1432,8 +1432,8 @@
           }
         },
         "eslint-plugin-jsdoc": {
-          "version": "65.4.2",
-          "resolved": "https://registry.npmjs.org/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-65.4.2.tgz",
+          "version": "65.4.3",
+          "resolved": "https://registry.npmjs.org/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-65.4.3.tgz",
           "overridden": false,
           "dependencies": {
             "@es-joy/escodegen": {
@@ -1455,7 +1455,7 @@
                       "version": "1.0.9"
                     },
                     "@typescript-eslint/types": {
-                      "version": "8.72.0"
+                      "version": "8.72.1"
                     },
                     "comment-parser": {
                       "version": "1.4.1",
@@ -1499,7 +1499,7 @@
                   "version": "1.0.9"
                 },
                 "@typescript-eslint/types": {
-                  "version": "8.72.0"
+                  "version": "8.72.1"
                 },
                 "comment-parser": {
                   "version": "1.4.9"
@@ -1508,14 +1508,7 @@
                   "version": "1.7.0"
                 },
                 "jsdoc-type-pratt-parser": {
-                  "version": "9.4.0",
-                  "resolved": "https://registry.npmjs.org/jsdoc-type-pratt-parser/-/jsdoc-type-pratt-parser-9.4.0.tgz",
-                  "overridden": false,
-                  "dependencies": {
-                    "@types/estree": {
-                      "version": "1.0.9"
-                    }
-                  }
+                  "version": "9.4.0"
                 }
               }
             },
@@ -1525,7 +1518,7 @@
               "overridden": false
             },
             "@typescript-eslint/utils": {
-              "version": "8.72.0"
+              "version": "8.72.1"
             },
             "are-docs-informative": {
               "version": "0.1.1",
@@ -1544,7 +1537,7 @@
               "overridden": false
             },
             "eslint": {
-              "version": "10.13.0"
+              "version": "10.14.0"
             },
             "espree": {
               "version": "11.2.0"
@@ -1652,7 +1645,7 @@
                   "overridden": false,
                   "dependencies": {
                     "eslint": {
-                      "version": "10.13.0"
+                      "version": "10.14.0"
                     },
                     "semver": {
                       "version": "7.8.5"
@@ -1660,12 +1653,12 @@
                   }
                 },
                 "eslint": {
-                  "version": "10.13.0"
+                  "version": "10.14.0"
                 }
               }
             },
             "eslint": {
-              "version": "10.13.0"
+              "version": "10.14.0"
             },
             "get-tsconfig": {
               "version": "4.13.0"
@@ -1707,8 +1700,8 @@
           }
         },
         "eslint-plugin-regexp": {
-          "version": "3.3.1",
-          "resolved": "https://registry.npmjs.org/eslint-plugin-regexp/-/eslint-plugin-regexp-3.3.1.tgz",
+          "version": "3.3.3",
+          "resolved": "https://registry.npmjs.org/eslint-plugin-regexp/-/eslint-plugin-regexp-3.3.3.tgz",
           "overridden": false,
           "dependencies": {
             "@eslint-community/eslint-utils": {
@@ -1721,18 +1714,15 @@
               "version": "1.4.9"
             },
             "eslint": {
-              "version": "10.13.0"
+              "version": "10.14.0"
             },
             "jsdoc-type-pratt-parser": {
-              "version": "9.2.2",
-              "resolved": "https://registry.npmjs.org/jsdoc-type-pratt-parser/-/jsdoc-type-pratt-parser-9.2.2.tgz",
+              "version": "9.4.0",
+              "resolved": "https://registry.npmjs.org/jsdoc-type-pratt-parser/-/jsdoc-type-pratt-parser-9.4.0.tgz",
               "overridden": false,
               "dependencies": {
                 "@types/estree": {
                   "version": "1.0.9"
-                },
-                "@types/node": {
-                  "version": "26.6.5"
                 }
               }
             },
@@ -1778,8 +1768,8 @@
           }
         },
         "eslint-plugin-security": {
-          "version": "4.2.0",
-          "resolved": "https://registry.npmjs.org/eslint-plugin-security/-/eslint-plugin-security-4.2.0.tgz",
+          "version": "4.2.1",
+          "resolved": "https://registry.npmjs.org/eslint-plugin-security/-/eslint-plugin-security-4.2.1.tgz",
           "overridden": false,
           "dependencies": {
             "safe-regex": {
@@ -1820,7 +1810,7 @@
               "overridden": false
             },
             "eslint": {
-              "version": "10.13.0"
+              "version": "10.14.0"
             },
             "functional-red-black-tree": {
               "version": "1.0.1",
@@ -1828,7 +1818,7 @@
               "overridden": false
             },
             "globals": {
-              "version": "17.13.0"
+              "version": "17.14.0"
             },
             "jsx-ast-utils-x": {
               "version": "0.1.0",
@@ -1966,7 +1956,7 @@
               "overridden": false
             },
             "eslint": {
-              "version": "10.13.0"
+              "version": "10.14.0"
             },
             "find-up-simple": {
               "version": "1.0.1",
@@ -1974,7 +1964,7 @@
               "overridden": false
             },
             "globals": {
-              "version": "17.13.0"
+              "version": "17.14.0"
             },
             "identifier-regex": {
               "version": "1.1.0",
@@ -2376,51 +2366,51 @@
           }
         },
         "eslint": {
-          "version": "10.13.0"
+          "version": "10.14.0"
         },
         "globals": {
-          "version": "17.13.0",
-          "resolved": "https://registry.npmjs.org/globals/-/globals-17.13.0.tgz",
+          "version": "17.14.0",
+          "resolved": "https://registry.npmjs.org/globals/-/globals-17.14.0.tgz",
           "overridden": false
         },
         "typescript-eslint": {
-          "version": "8.72.0",
-          "resolved": "https://registry.npmjs.org/typescript-eslint/-/typescript-eslint-8.72.0.tgz",
+          "version": "8.72.1",
+          "resolved": "https://registry.npmjs.org/typescript-eslint/-/typescript-eslint-8.72.1.tgz",
           "overridden": false,
           "dependencies": {
             "@typescript-eslint/eslint-plugin": {
-              "version": "8.72.0",
-              "resolved": "https://registry.npmjs.org/@typescript-eslint/eslint-plugin/-/eslint-plugin-8.72.0.tgz",
+              "version": "8.72.1",
+              "resolved": "https://registry.npmjs.org/@typescript-eslint/eslint-plugin/-/eslint-plugin-8.72.1.tgz",
               "overridden": false,
               "dependencies": {
                 "@eslint-community/regexpp": {
                   "version": "4.12.2"
                 },
                 "@typescript-eslint/parser": {
-                  "version": "8.72.0"
+                  "version": "8.72.1"
                 },
                 "@typescript-eslint/scope-manager": {
-                  "version": "8.72.0"
+                  "version": "8.72.1"
                 },
                 "@typescript-eslint/type-utils": {
-                  "version": "8.72.0",
-                  "resolved": "https://registry.npmjs.org/@typescript-eslint/type-utils/-/type-utils-8.72.0.tgz",
+                  "version": "8.72.1",
+                  "resolved": "https://registry.npmjs.org/@typescript-eslint/type-utils/-/type-utils-8.72.1.tgz",
                   "overridden": false,
                   "dependencies": {
                     "@typescript-eslint/types": {
-                      "version": "8.72.0"
+                      "version": "8.72.1"
                     },
                     "@typescript-eslint/typescript-estree": {
-                      "version": "8.72.0"
+                      "version": "8.72.1"
                     },
                     "@typescript-eslint/utils": {
-                      "version": "8.72.0"
+                      "version": "8.72.1"
                     },
                     "debug": {
                       "version": "4.4.3"
                     },
                     "eslint": {
-                      "version": "10.13.0"
+                      "version": "10.14.0"
                     },
                     "ts-api-utils": {
                       "version": "2.5.0"
@@ -2431,15 +2421,15 @@
                   }
                 },
                 "@typescript-eslint/utils": {
-                  "version": "8.72.0"
+                  "version": "8.72.1"
                 },
                 "@typescript-eslint/visitor-keys": {
-                  "version": "8.72.0",
-                  "resolved": "https://registry.npmjs.org/@typescript-eslint/visitor-keys/-/visitor-keys-8.72.0.tgz",
+                  "version": "8.72.1",
+                  "resolved": "https://registry.npmjs.org/@typescript-eslint/visitor-keys/-/visitor-keys-8.72.1.tgz",
                   "overridden": false,
                   "dependencies": {
                     "@typescript-eslint/types": {
-                      "version": "8.72.0"
+                      "version": "8.72.1"
                     },
                     "eslint-visitor-keys": {
                       "version": "5.0.1",
@@ -2449,7 +2439,7 @@
                   }
                 },
                 "eslint": {
-                  "version": "10.13.0"
+                  "version": "10.14.0"
                 },
                 "ignore": {
                   "version": "7.0.9"
@@ -2466,27 +2456,27 @@
               }
             },
             "@typescript-eslint/parser": {
-              "version": "8.72.0",
-              "resolved": "https://registry.npmjs.org/@typescript-eslint/parser/-/parser-8.72.0.tgz",
+              "version": "8.72.1",
+              "resolved": "https://registry.npmjs.org/@typescript-eslint/parser/-/parser-8.72.1.tgz",
               "overridden": false,
               "dependencies": {
                 "@typescript-eslint/scope-manager": {
-                  "version": "8.72.0"
+                  "version": "8.72.1"
                 },
                 "@typescript-eslint/types": {
-                  "version": "8.72.0"
+                  "version": "8.72.1"
                 },
                 "@typescript-eslint/typescript-estree": {
-                  "version": "8.72.0"
+                  "version": "8.72.1"
                 },
                 "@typescript-eslint/visitor-keys": {
-                  "version": "8.72.0"
+                  "version": "8.72.1"
                 },
                 "debug": {
                   "version": "4.4.3"
                 },
                 "eslint": {
-                  "version": "10.13.0"
+                  "version": "10.14.0"
                 },
                 "typescript": {
                   "version": "6.0.3"
@@ -2494,20 +2484,20 @@
               }
             },
             "@typescript-eslint/typescript-estree": {
-              "version": "8.72.0",
-              "resolved": "https://registry.npmjs.org/@typescript-eslint/typescript-estree/-/typescript-estree-8.72.0.tgz",
+              "version": "8.72.1",
+              "resolved": "https://registry.npmjs.org/@typescript-eslint/typescript-estree/-/typescript-estree-8.72.1.tgz",
               "overridden": false,
               "dependencies": {
                 "@typescript-eslint/project-service": {
-                  "version": "8.72.0",
-                  "resolved": "https://registry.npmjs.org/@typescript-eslint/project-service/-/project-service-8.72.0.tgz",
+                  "version": "8.72.1",
+                  "resolved": "https://registry.npmjs.org/@typescript-eslint/project-service/-/project-service-8.72.1.tgz",
                   "overridden": false,
                   "dependencies": {
                     "@typescript-eslint/tsconfig-utils": {
-                      "version": "8.72.0"
+                      "version": "8.72.1"
                     },
                     "@typescript-eslint/types": {
-                      "version": "8.72.0"
+                      "version": "8.72.1"
                     },
                     "debug": {
                       "version": "4.4.3"
@@ -2518,8 +2508,8 @@
                   }
                 },
                 "@typescript-eslint/tsconfig-utils": {
-                  "version": "8.72.0",
-                  "resolved": "https://registry.npmjs.org/@typescript-eslint/tsconfig-utils/-/tsconfig-utils-8.72.0.tgz",
+                  "version": "8.72.1",
+                  "resolved": "https://registry.npmjs.org/@typescript-eslint/tsconfig-utils/-/tsconfig-utils-8.72.1.tgz",
                   "overridden": false,
                   "dependencies": {
                     "typescript": {
@@ -2528,10 +2518,10 @@
                   }
                 },
                 "@typescript-eslint/types": {
-                  "version": "8.72.0"
+                  "version": "8.72.1"
                 },
                 "@typescript-eslint/visitor-keys": {
-                  "version": "8.72.0"
+                  "version": "8.72.1"
                 },
                 "debug": {
                   "version": "4.4.3"
@@ -2554,10 +2544,10 @@
               }
             },
             "@typescript-eslint/utils": {
-              "version": "8.72.0"
+              "version": "8.72.1"
             },
             "eslint": {
-              "version": "10.13.0"
+              "version": "10.14.0"
             },
             "typescript": {
               "version": "6.0.3"
@@ -2567,8 +2557,8 @@
       }
     },
     "@types/node": {
-      "version": "26.6.5",
-      "resolved": "https://registry.npmjs.org/@types/node/-/node-26.6.5.tgz",
+      "version": "26.6.6",
+      "resolved": "https://registry.npmjs.org/@types/node/-/node-26.6.6.tgz",
       "overridden": false,
       "dependencies": {
         "undici-types": {
@@ -2579,8 +2569,8 @@
       }
     },
     "@vitest/coverage-v8": {
-      "version": "5.0.5",
-      "resolved": "https://registry.npmjs.org/@vitest/coverage-v8/-/coverage-v8-5.0.5.tgz",
+      "version": "5.1.0",
+      "resolved": "https://registry.npmjs.org/@vitest/coverage-v8/-/coverage-v8-5.1.0.tgz",
       "overridden": false,
       "dependencies": {
         "@bcoe/v8-coverage": {
@@ -2590,17 +2580,17 @@
         },
         "@vitest/browser": {},
         "@vitest/istanbul-lib-coverage": {
-          "version": "1.0.2",
-          "resolved": "https://registry.npmjs.org/@vitest/istanbul-lib-coverage/-/istanbul-lib-coverage-1.0.2.tgz",
+          "version": "2.1.0",
+          "resolved": "https://registry.npmjs.org/@vitest/istanbul-lib-coverage/-/istanbul-lib-coverage-2.1.0.tgz",
           "overridden": false
         },
         "@vitest/istanbul-lib-report": {
-          "version": "1.0.2",
-          "resolved": "https://registry.npmjs.org/@vitest/istanbul-lib-report/-/istanbul-lib-report-1.0.2.tgz",
+          "version": "2.1.0",
+          "resolved": "https://registry.npmjs.org/@vitest/istanbul-lib-report/-/istanbul-lib-report-2.1.0.tgz",
           "overridden": false,
           "dependencies": {
             "@vitest/istanbul-lib-coverage": {
-              "version": "1.0.2"
+              "version": "2.1.0"
             }
           }
         },
@@ -2696,13 +2686,13 @@
           "overridden": false
         },
         "vitest": {
-          "version": "5.0.5"
+          "version": "5.1.0"
         }
       }
     },
     "eslint": {
-      "version": "10.13.0",
-      "resolved": "https://registry.npmjs.org/eslint/-/eslint-10.13.0.tgz",
+      "version": "10.14.0",
+      "resolved": "https://registry.npmjs.org/eslint/-/eslint-10.14.0.tgz",
       "overridden": false,
       "dependencies": {
         "@eslint-community/eslint-utils": {
@@ -2716,7 +2706,7 @@
               "overridden": false
             },
             "eslint": {
-              "version": "10.13.0"
+              "version": "10.14.0"
             }
           }
         },
@@ -3248,26 +3238,29 @@
       }
     },
     "file-type": {
-      "version": "22.2.0",
-      "resolved": "https://registry.npmjs.org/file-type/-/file-type-22.2.0.tgz",
+      "version": "22.3.0",
+      "resolved": "https://registry.npmjs.org/file-type/-/file-type-22.3.0.tgz",
       "overridden": false,
       "dependencies": {
         "@tokenizer/inflate": {
-          "version": "0.5.1",
-          "resolved": "https://registry.npmjs.org/@tokenizer/inflate/-/inflate-0.5.1.tgz",
+          "version": "0.6.0",
+          "resolved": "https://registry.npmjs.org/@tokenizer/inflate/-/inflate-0.6.0.tgz",
           "overridden": false,
           "dependencies": {
             "debug": {
               "version": "4.4.3"
             },
+            "strtok3": {
+              "version": "10.7.0"
+            },
             "token-types": {
-              "version": "6.1.2"
+              "version": "6.2.0"
             }
           }
         },
         "strtok3": {
-          "version": "10.6.2",
-          "resolved": "https://registry.npmjs.org/strtok3/-/strtok3-10.6.2.tgz",
+          "version": "10.7.0",
+          "resolved": "https://registry.npmjs.org/strtok3/-/strtok3-10.7.0.tgz",
           "overridden": false,
           "dependencies": {
             "@tokenizer/token": {
@@ -3278,13 +3271,13 @@
           }
         },
         "token-types": {
-          "version": "6.1.2",
-          "resolved": "https://registry.npmjs.org/token-types/-/token-types-6.1.2.tgz",
+          "version": "6.2.0",
+          "resolved": "https://registry.npmjs.org/token-types/-/token-types-6.2.0.tgz",
           "overridden": false,
           "dependencies": {
             "@borewit/text-codec": {
-              "version": "0.2.2",
-              "resolved": "https://registry.npmjs.org/@borewit/text-codec/-/text-codec-0.2.2.tgz",
+              "version": "0.2.3",
+              "resolved": "https://registry.npmjs.org/@borewit/text-codec/-/text-codec-0.2.3.tgz",
               "overridden": false
             },
             "@tokenizer/token": {
@@ -3517,7 +3510,7 @@
               }
             },
             "rolldown": {
-              "version": "1.2.15"
+              "version": "1.2.16"
             },
             "rollup": {},
             "typescript": {
@@ -3545,23 +3538,23 @@
               }
             },
             "vite": {
-              "version": "8.3.5"
+              "version": "8.3.6"
             },
             "webpack": {}
           }
         },
         "vite": {
-          "version": "8.3.5"
+          "version": "8.3.6"
         }
       }
     },
     "vite": {
-      "version": "8.3.5",
-      "resolved": "https://registry.npmjs.org/vite/-/vite-8.3.5.tgz",
+      "version": "8.3.6",
+      "resolved": "https://registry.npmjs.org/vite/-/vite-8.3.6.tgz",
       "overridden": false,
       "dependencies": {
         "@types/node": {
-          "version": "26.6.5"
+          "version": "26.6.6"
         },
         "@vitejs/devtools": {},
         "esbuild": {
@@ -3641,8 +3634,8 @@
           "overridden": false
         },
         "postcss": {
-          "version": "8.5.31",
-          "resolved": "https://registry.npmjs.org/postcss/-/postcss-8.5.31.tgz",
+          "version": "8.5.32",
+          "resolved": "https://registry.npmjs.org/postcss/-/postcss-8.5.32.tgz",
           "overridden": false,
           "dependencies": {
             "nanoid": {
@@ -3661,20 +3654,20 @@
           }
         },
         "rolldown": {
-          "version": "1.2.15",
-          "resolved": "https://registry.npmjs.org/rolldown/-/rolldown-1.2.15.tgz",
+          "version": "1.2.16",
+          "resolved": "https://registry.npmjs.org/rolldown/-/rolldown-1.2.16.tgz",
           "overridden": false,
           "dependencies": {
             "@oxc-project/types": {
-              "version": "0.155.0",
-              "resolved": "https://registry.npmjs.org/@oxc-project/types/-/types-0.155.0.tgz",
+              "version": "0.156.0",
+              "resolved": "https://registry.npmjs.org/@oxc-project/types/-/types-0.156.0.tgz",
               "overridden": false
             },
             "@rolldown/binding-android-arm-eabi": {},
             "@rolldown/binding-android-arm64": {},
             "@rolldown/binding-darwin-arm64": {
-              "version": "1.2.15",
-              "resolved": "https://registry.npmjs.org/@rolldown/binding-darwin-arm64/-/binding-darwin-arm64-1.2.15.tgz",
+              "version": "1.2.16",
+              "resolved": "https://registry.npmjs.org/@rolldown/binding-darwin-arm64/-/binding-darwin-arm64-1.2.16.tgz",
               "overridden": false
             },
             "@rolldown/binding-darwin-x64": {},
@@ -3730,8 +3723,8 @@
       }
     },
     "vitest": {
-      "version": "5.0.5",
-      "resolved": "https://registry.npmjs.org/vitest/-/vitest-5.0.5.tgz",
+      "version": "5.1.0",
+      "resolved": "https://registry.npmjs.org/vitest/-/vitest-5.1.0.tgz",
       "overridden": false,
       "dependencies": {
         "@edge-runtime/vm": {},
@@ -3754,26 +3747,26 @@
           }
         },
         "@types/node": {
-          "version": "26.6.5"
+          "version": "26.6.6"
         },
         "@vitest/browser-playwright": {},
         "@vitest/browser-preview": {},
         "@vitest/browser-webdriverio": {},
         "@vitest/coverage-istanbul": {},
         "@vitest/coverage-v8": {
-          "version": "5.0.5"
+          "version": "5.1.0"
         },
         "@vitest/mocker": {
-          "version": "5.0.5",
-          "resolved": "https://registry.npmjs.org/@vitest/mocker/-/mocker-5.0.5.tgz",
+          "version": "5.1.0",
+          "resolved": "https://registry.npmjs.org/@vitest/mocker/-/mocker-5.1.0.tgz",
           "overridden": false,
           "dependencies": {
             "@jridgewell/trace-mapping": {
               "version": "0.3.31"
             },
             "@vitest/spy": {
-              "version": "5.0.5",
-              "resolved": "https://registry.npmjs.org/@vitest/spy/-/spy-5.0.5.tgz",
+              "version": "5.1.0",
+              "resolved": "https://registry.npmjs.org/@vitest/spy/-/spy-5.1.0.tgz",
               "overridden": false
             },
             "estree-walker": {
@@ -3787,8 +3780,8 @@
               }
             },
             "magic-string": {
-              "version": "1.4.3",
-              "resolved": "https://registry.npmjs.org/magic-string/-/magic-string-1.4.3.tgz",
+              "version": "1.4.5",
+              "resolved": "https://registry.npmjs.org/magic-string/-/magic-string-1.4.5.tgz",
               "overridden": false,
               "dependencies": {
                 "@jridgewell/sourcemap-codec": {
@@ -3798,7 +3791,7 @@
             },
             "msw": {},
             "vite": {
-              "version": "8.3.5"
+              "version": "8.3.6"
             }
           }
         },
@@ -3821,8 +3814,8 @@
         "happy-dom": {},
         "jsdom": {},
         "magic-string": {
-          "version": "1.4.3",
-          "resolved": "https://registry.npmjs.org/magic-string/-/magic-string-1.4.3.tgz",
+          "version": "1.4.5",
+          "resolved": "https://registry.npmjs.org/magic-string/-/magic-string-1.4.5.tgz",
           "overridden": false,
           "dependencies": {
             "@jridgewell/sourcemap-codec": {
@@ -3842,8 +3835,8 @@
           "version": "4.3.0"
         },
         "tinybench": {
-          "version": "6.2.2",
-          "resolved": "https://registry.npmjs.org/tinybench/-/tinybench-6.2.2.tgz",
+          "version": "6.2.3",
+          "resolved": "https://registry.npmjs.org/tinybench/-/tinybench-6.2.3.tgz",
           "overridden": false
         },
         "tinyexec": {
@@ -3855,7 +3848,7 @@
           "version": "0.2.17"
         },
         "vite": {
-          "version": "8.3.5"
+          "version": "8.3.6"
         },
         "why-is-node-running": {
           "version": "3.2.1",
@@ -3865,8 +3858,8 @@
       }
     },
     "wrangler": {
-      "version": "4.154.0",
-      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.154.0.tgz",
+      "version": "4.158.0",
+      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.158.0.tgz",
       "overridden": false,
       "dependencies": {
         "@cloudflare/kv-asset-handler": {
@@ -3883,11 +3876,31 @@
               "version": "2.0.0-rc.24"
             },
             "workerd": {
-              "version": "1.20261023.1"
+              "version": "1.20261104.1"
             }
           }
         },
         "@cloudflare/workers-types": {},
+        "@cspotcode/source-map-support": {
+          "version": "0.8.1",
+          "resolved": "https://registry.npmjs.org/@cspotcode/source-map-support/-/source-map-support-0.8.1.tgz",
+          "overridden": false,
+          "dependencies": {
+            "@jridgewell/trace-mapping": {
+              "version": "0.3.9",
+              "resolved": "https://registry.npmjs.org/@jridgewell/trace-mapping/-/trace-mapping-0.3.9.tgz",
+              "overridden": false,
+              "dependencies": {
+                "@jridgewell/resolve-uri": {
+                  "version": "3.1.2"
+                },
+                "@jridgewell/sourcemap-codec": {
+                  "version": "1.6.0"
+                }
+              }
+            }
+          }
+        },
         "blake3-wasm": {
           "version": "2.1.5",
           "resolved": "https://registry.npmjs.org/blake3-wasm/-/blake3-wasm-2.1.5.tgz",
@@ -3900,29 +3913,12 @@
           "version": "2.3.3"
         },
         "miniflare": {
-          "version": "5.20261023.1-beta",
-          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261023.1-beta.tgz",
+          "version": "5.20261104.0-beta",
+          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261104.0-beta.tgz",
           "overridden": false,
           "dependencies": {
             "@cspotcode/source-map-support": {
-              "version": "0.8.1",
-              "resolved": "https://registry.npmjs.org/@cspotcode/source-map-support/-/source-map-support-0.8.1.tgz",
-              "overridden": false,
-              "dependencies": {
-                "@jridgewell/trace-mapping": {
-                  "version": "0.3.9",
-                  "resolved": "https://registry.npmjs.org/@jridgewell/trace-mapping/-/trace-mapping-0.3.9.tgz",
-                  "overridden": false,
-                  "dependencies": {
-                    "@jridgewell/resolve-uri": {
-                      "version": "3.1.2"
-                    },
-                    "@jridgewell/sourcemap-codec": {
-                      "version": "1.6.0"
-                    }
-                  }
-                }
-              }
+              "version": "0.8.1"
             },
             "sharp": {
               "version": "0.35.5",
@@ -3986,7 +3982,7 @@
               "overridden": false
             },
             "workerd": {
-              "version": "1.20261023.1"
+              "version": "1.20261104.1"
             },
             "ws": {
               "version": "8.21.0",
@@ -4083,14 +4079,14 @@
           }
         },
         "workerd": {
-          "version": "1.20261023.1",
-          "resolved": "https://registry.npmjs.org/workerd/-/workerd-1.20261023.1.tgz",
+          "version": "1.20261104.1",
+          "resolved": "https://registry.npmjs.org/workerd/-/workerd-1.20261104.1.tgz",
           "overridden": false,
           "dependencies": {
             "@cloudflare/workerd-darwin-64": {},
             "@cloudflare/workerd-darwin-arm64": {
-              "version": "1.20261023.1",
-              "resolved": "https://registry.npmjs.org/@cloudflare/workerd-darwin-arm64/-/workerd-darwin-arm64-1.20261023.1.tgz",
+              "version": "1.20261104.1",
+              "resolved": "https://registry.npmjs.org/@cloudflare/workerd-darwin-arm64/-/workerd-darwin-arm64-1.20261104.1.tgz",
               "overridden": false
             },
             "@cloudflare/workerd-linux-64": {},
