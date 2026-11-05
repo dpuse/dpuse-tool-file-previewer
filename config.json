@@ -9,9 +9,9 @@
     "actionNames": [
         "previewFile"
     ],
-    "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-file-scan-icon lucide-file-scan\"><g stroke=\"#3b82f6\"><path d=\"M20 10V8a2.4 2.4 0 0 0-.706-1.704l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.35\"/><path d=\"M14 2v5a1 1 0 0 0 1 1h5\"/></g><g stroke=\"#ca8a04\"><path d=\"M16 14a2 2 0 0 0-2 2\"/><path d=\"M16 22a2 2 0 0 1-2-2\"/><path d=\"M20 14a2 2 0 0 1 2 2\"/><path d=\"M20 22a2 2 0 0 0 2-2\"/></g></svg>",
+    "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-file-scan-icon lucide-file-scan\"><g stroke=\"#3b82f6\"><path d=\"M20 10V8a2.4 2.4 0 0 0-.706-1.704l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.35\"/><path d=\"M14 2v5a1 1 0 0 0 1 1h5\"/></g><g stroke=\"#ca8a04\"><path d=\"M16 14a2 2 0 0 0-2 2\"/><path d=\"M16 22a2 2 0 0 1-2-2\"/><path d=\"M20 14a2 2 0 0 1 2 2\"/><path d=\"M20 22a2 2 0 0 0 2-2\"/></g></svg>",
     "iconDark": null,
     "statusId": "alpha",
     "typeId": "tool",
-    "version": "1.0.129"
+    "version": "1.0.130"
 }
