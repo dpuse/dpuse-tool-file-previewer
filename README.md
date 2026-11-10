@@ -65,7 +65,7 @@ License data is updated each time `npm run document` is run, using [license-chec
 | Dependency                                                             | Version | License(s) | Document                                                              |
 | :--------------------------------------------------------------------- | :-----: | :--------- | :-------------------------------------------------------------------- |
 | [@borewit/text-codec](https://github.com/Borewit/text-codec)           |  0.2.3  | MIT        | [LICENSE](licenses/downloads/@borewit/text-codec@0.2.3-LICENSE.txt)   |
-| [@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)           | 1.0.183 | MIT        | [LICENSE](licenses/downloads/@dpuse/dpuse-shared@1.0.183-LICENSE.txt) |
+| [@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)           | 1.0.205 | MIT        | [LICENSE](licenses/downloads/@dpuse/dpuse-shared@1.0.205-LICENSE.txt) |
 | [@tokenizer/inflate](https://github.com/Borewit/tokenizer-inflate)     |  0.6.0  | MIT        | [LICENSE](licenses/downloads/@tokenizer/inflate@0.6.0-LICENSE.txt)    |
 | [debug](https://github.com/debug-js/debug)                             |  4.4.3  | MIT        | [LICENSE](licenses/downloads/debug@4.4.3-LICENSE.txt)                 |
 | [file-type](https://github.com/sindresorhus/file-type)                 | 22.3.0  | MIT        | [LICENSE](licenses/downloads/file-type@22.3.0-LICENSE.txt)            |
@@ -80,9 +80,9 @@ License data is updated each time `npm run document` is run, using [license-chec
 
 The dependency tree below shows how each package in the table above is reached — direct and transitive — along with its installed version, release date, and update status. A package that does not ship itself, such as one whose parts are bundled separately, is left out and what ships beneath it is shown in its place. Packages flagged ❗ have a newer version available; ⚠️ indicates a package that hasn't been updated in the last 6 months or longer. Neither flag necessarily indicates a problem: we let new releases stabilise before upgrading, and some packages are mature and stable (have limited or no dependencies), so they require no active development.
 
-- **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 1.0.183 — this month: 2026-11-04
+- **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 1.0.205 — this month: 2026-11-10
     - **[file-type](https://github.com/sindresorhus/file-type)** 22.3.0 — this month: 2026-10-29
-    - **[valibot](https://github.com/open-circle/valibot)** 1.5.0 — 1 mth ago: 2026-09-09
+    - **[valibot](https://github.com/open-circle/valibot)** 1.5.0 — 2 mths ago: 2026-09-09
 - **[file-type](https://github.com/sindresorhus/file-type)** 22.3.0 — this month: 2026-10-29
     - **[@tokenizer/inflate](https://github.com/Borewit/tokenizer-inflate)** 0.6.0 — this month: 2026-10-24
         - **[debug](https://github.com/debug-js/debug)** 4.4.3 — 13 mths ago: 2025-09-13 ⚠️
@@ -106,11 +106,11 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 | Chunk/Module/File                                                       | Composition                                                                                       |
 | :---------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------ |
-| **dist/dpuse-tool-file-previewer.es.js**                                | 1263.7&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;724.3&nbsp;kB&nbsp;·&nbsp;100.0%&nbsp;of&nbsp;the&nbsp;build |
+| **dist/dpuse-tool-file-previewer.es.js**                                | 1262.9&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;724.0&nbsp;kB&nbsp;·&nbsp;100.0%&nbsp;of&nbsp;the&nbsp;build |
 | &nbsp;&nbsp;&nbsp;&nbsp;jschardet → dist/jschardet.esm.min.js           | `██████████████████░░`&nbsp;89.6%&nbsp;·&nbsp;1131.9&nbsp;kB                                      |
 | &nbsp;&nbsp;&nbsp;&nbsp;file-type → source/index.js + 7 more            | `█░░░░░░░░░░░░░░░░░░░`&nbsp;3.4%&nbsp;·&nbsp;42.9&nbsp;kB                                         |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 8 smaller files       | `▒░░░░░░░░░░░░░░░░░░░`&nbsp;3.4%&nbsp;·&nbsp;42.9&nbsp;kB                                         |
-| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js   | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.8%&nbsp;·&nbsp;23.2&nbsp;kB                                         |
+| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js   | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.8%&nbsp;·&nbsp;22.5&nbsp;kB                                         |
 | &nbsp;&nbsp;&nbsp;&nbsp;strtok3 → lib/TokenizerView.js + 15 more        | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.1%&nbsp;·&nbsp;13.8&nbsp;kB                                         |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 16 smaller files      | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.1%&nbsp;·&nbsp;13.8&nbsp;kB                                         |
 | &nbsp;&nbsp;&nbsp;&nbsp;@tokenizer/inflate → lib/ZipHandler.js + 3 more | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.8%&nbsp;·&nbsp;10.2&nbsp;kB                                         |
