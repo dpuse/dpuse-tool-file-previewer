@@ -3,19 +3,12 @@ import { fileTypeFromBuffer, type FileTypeResult } from 'file-type';
 
 // ── DPUse Framework
 import { buildFetchError, extractExtensionFromPath } from '@dpuse/dpuse-shared';
-import type { DataFormatId, DataFormatSourceId, EncodingSourceId, FilePreviewerInterface } from '@dpuse/dpuse-shared';
-import type { FilePreviewResult, PreviewChoices } from '@dpuse/dpuse-shared';
+import type { DataFormatId, DataFormatSourceId, EncodingSourceId, FilePreviewerInterface, FilePreviewResult } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { decodeBytesAsCharacters, type DecodedText, decodeFileBytes, type DecodingEncoding } from '@/encoding';
-import { detectTextEncoding, detectXMLEncoding } from '@/encoding';
+import { detectTextEncoding, detectXMLEncoding, type EncodingDetection } from '@/encoding';
 import { isLikelyJSONFormat, isLikelyJSONLinesFormat } from '@/jsonDetection';
-
-// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-type PreviewContent = Omit<FilePreviewResult, 'isComplete'>;
-type DataFormat = Pick<FilePreviewResult, 'dataFormatId' | 'dataFormatSourceId'>;
-type MarkdownSourceId = Extract<DataFormatSourceId, 'extension' | 'mimeType'>;
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -40,20 +33,20 @@ const MARKDOWN_EXTENSIONS = new Set(['markdown', 'md']);
 // ── Tools ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export class Tool implements FilePreviewerInterface {
-    async previewFile(url: string, signal: AbortSignal, chunkSize?: number, mimeType?: string, choices?: PreviewChoices): Promise<FilePreviewResult> {
+    async previewFile(url: string, signal: AbortSignal, chunkSize?: number, mimeType?: string, encodingId?: string): Promise<FilePreviewResult> {
         const markdownSourceId = determineMarkdownSourceId(mimeType, extractExtensionFromPath(new URL(url).pathname)?.toLowerCase());
         const requestedByteCount = chunkSize ?? DEFAULT_PREVIEW_CHUNK_SIZE;
         const response = await fetch(encodeURI(url), { headers: { Range: `bytes=0-${String(requestedByteCount - 1)}` }, signal }); // Range ends are inclusive.
         if (response.status === 416) {
             // An empty file has no bytes to send, so the server replies with 416 'Range Not Satisfiable'.
-            return { ...(await previewFileBytes(new Uint8Array(0), markdownSourceId, true)), isComplete: true };
+            return previewFileBytes(new Uint8Array(0), markdownSourceId, true);
         }
 
         if (!response.ok) throw await buildFetchError(response, `Failed to fetch '${url}' file.`, 'dpuse-tool-file-previewer.Tool.previewFile');
 
         const { fileBytes, isCutShort } = await readResponseBytes(response, requestedByteCount);
         const isComplete = !isCutShort && determineIsComplete(response, fileBytes.length, requestedByteCount);
-        return { ...(await previewFileBytes(fileBytes, markdownSourceId, isComplete, choices)), isComplete };
+        return previewFileBytes(fileBytes, markdownSourceId, isComplete, encodingId);
     }
 }
 
@@ -92,60 +85,61 @@ function determineIsComplete(response: Response, byteCount: number, requestedByt
     return totalByteCount == null ? response.status !== 206 || byteCount < requestedByteCount : byteCount >= Number(totalByteCount);
 }
 
-async function previewFileBytes(fileBytes: Uint8Array, markdownSourceId: MarkdownSourceId | undefined, isComplete: boolean, choices?: PreviewChoices): Promise<PreviewContent> {
+async function previewFileBytes(
+    fileBytes: Uint8Array,
+    markdownSourceId: DataFormatSourceId | undefined,
+    isComplete: boolean,
+    chosenEncodingId?: string
+): Promise<FilePreviewResult> {
     if (fileBytes.length === 0) {
         return {
             bytes: fileBytes,
             dataFormatId: undefined,
             dataFormatSourceId: undefined,
+            decodedEncodingId: undefined,
             encodingId: undefined,
             encodingConfidenceLevel: undefined,
             encodingSourceId: undefined,
             encodingCandidates: undefined,
             replacementCharacterCount: undefined,
             fileTypeConfig: undefined,
+            isComplete,
             text: undefined
         };
     }
 
     const fileTypeConfig = await fileTypeFromBuffer(fileBytes);
-    if (fileTypeConfig != null) return previewDetectedFileType(fileBytes, fileTypeConfig, isComplete, choices);
+    if (fileTypeConfig != null) return previewDetectedFileType(fileBytes, fileTypeConfig, isComplete, chosenEncodingId);
 
     // 'file-type' did not recognise the file, so it is treated as text.
     const detectedEncoding = detectTextEncoding(fileBytes, isComplete);
-    const chosenEncoding = constructChosenEncoding(choices);
-    const decodedText = decodeFileBytes(fileBytes, chosenEncoding ?? detectedEncoding.encoding, isComplete);
+    const decodedText = decodeFileBytes(fileBytes, constructChosenEncoding(chosenEncodingId) ?? detectedEncoding.encoding, isComplete);
     return {
         bytes: fileBytes,
-        ...selectDataFormat(choices, determineTextDataFormat(decodedText.text, markdownSourceId)),
-        encodingId: decodedText.encoding.id,
-        encodingConfidenceLevel: decodedText.encoding.confidenceLevel,
-        encodingSourceId: determineEncodingSourceId(decodedText, chosenEncoding, detectedEncoding.sourceId),
+        ...determineTextDataFormat(decodedText.text, markdownSourceId),
+        ...constructEncodingResult(detectedEncoding, decodedText),
         encodingCandidates: detectedEncoding.candidates,
-        replacementCharacterCount: decodedText.replacementCharacterCount,
         fileTypeConfig,
+        isComplete,
         text: decodedText.text
     };
 }
 
 // Builds the preview for a file that 'file-type' recognised. XML is text and names its own encoding. The other types
 // are binary, so their bytes are shown one character per byte, with no encoding, even if the user chose one.
-function previewDetectedFileType(fileBytes: Uint8Array, fileTypeConfig: FileTypeResult, isComplete: boolean, choices?: PreviewChoices): PreviewContent {
-    const detectedDataFormatId = Object.hasOwn(FILE_TYPE_TO_DATA_FORMAT_MAP, fileTypeConfig.ext) ? FILE_TYPE_TO_DATA_FORMAT_MAP[fileTypeConfig.ext] : undefined;
-    const dataFormat = selectDataFormat(choices, { dataFormatId: detectedDataFormatId, dataFormatSourceId: detectedDataFormatId == null ? undefined : 'fileContent' });
+function previewDetectedFileType(fileBytes: Uint8Array, fileTypeConfig: FileTypeResult, isComplete: boolean, chosenEncodingId: string | undefined): FilePreviewResult {
+    const dataFormatId = Object.hasOwn(FILE_TYPE_TO_DATA_FORMAT_MAP, fileTypeConfig.ext) ? FILE_TYPE_TO_DATA_FORMAT_MAP[fileTypeConfig.ext] : undefined;
+    const dataFormat = { dataFormatId, dataFormatSourceId: dataFormatId == null ? undefined : ('fileContent' as const) };
     if (fileTypeConfig.ext === 'xml') {
         const detectedEncoding = detectXMLEncoding(fileBytes);
-        const chosenEncoding = constructChosenEncoding(choices);
-        const decodedText = decodeFileBytes(fileBytes, chosenEncoding ?? detectedEncoding.encoding, isComplete);
+        const decodedText = decodeFileBytes(fileBytes, constructChosenEncoding(chosenEncodingId) ?? detectedEncoding.encoding, isComplete);
         return {
             bytes: fileBytes,
             ...dataFormat,
-            encodingId: decodedText.encoding.id,
-            encodingConfidenceLevel: decodedText.encoding.confidenceLevel,
-            encodingSourceId: determineEncodingSourceId(decodedText, chosenEncoding, detectedEncoding.sourceId),
+            ...constructEncodingResult(detectedEncoding, decodedText),
             encodingCandidates: undefined,
-            replacementCharacterCount: decodedText.replacementCharacterCount,
             fileTypeConfig,
+            isComplete,
             text: decodedText.text
         };
     }
@@ -153,37 +147,41 @@ function previewDetectedFileType(fileBytes: Uint8Array, fileTypeConfig: FileType
     return {
         bytes: fileBytes,
         ...dataFormat,
+        decodedEncodingId: undefined,
         encodingId: undefined,
         encodingConfidenceLevel: undefined,
         encodingSourceId: undefined,
         encodingCandidates: undefined,
         replacementCharacterCount: undefined,
         fileTypeConfig,
+        isComplete,
         text: decodeBytesAsCharacters(fileBytes)
     };
 }
 
 // Returns the encoding the user chose, if any, with full confidence.
-function constructChosenEncoding(choices: PreviewChoices | undefined): DecodingEncoding | undefined {
-    return choices?.encodingId == null ? undefined : { id: choices.encodingId, confidenceLevel: 1 };
+function constructChosenEncoding(encodingId: string | undefined): DecodingEncoding | undefined {
+    return encodingId == null ? undefined : { id: encodingId, confidenceLevel: 1 };
 }
 
-// Returns how the encoding used was found. A fallback to UTF-8 is reported over the user's choice, so the user can see
-// that the encoding they chose could not be used.
-function determineEncodingSourceId(decodedText: DecodedText, chosenEncoding: DecodingEncoding | undefined, detectedSourceId: EncodingSourceId): EncodingSourceId {
-    if (decodedText.isFallback) return 'fallback';
-    return chosenEncoding == null ? detectedSourceId : 'choice';
-}
-
-// Returns the format the user chose, if any, and otherwise the one detected.
-function selectDataFormat(choices: PreviewChoices | undefined, detectedDataFormat: DataFormat): DataFormat {
-    return choices?.dataFormatId == null ? detectedDataFormat : { dataFormatId: choices.dataFormatId, dataFormatSourceId: 'choice' };
+// Reports the encoding that was detected, whatever was chosen, beside the encoding the text was actually decoded with.
+function constructEncodingResult(
+    detectedEncoding: EncodingDetection,
+    decodedText: DecodedText
+): { decodedEncodingId: string; encodingConfidenceLevel: number | undefined; encodingId: string; encodingSourceId: EncodingSourceId; replacementCharacterCount: number } {
+    return {
+        decodedEncodingId: decodedText.encoding.id,
+        encodingId: detectedEncoding.encoding.id,
+        encodingConfidenceLevel: detectedEncoding.encoding.confidenceLevel,
+        encodingSourceId: detectedEncoding.sourceId,
+        replacementCharacterCount: decodedText.replacementCharacterCount
+    };
 }
 
 // Returns how the file was recognised as markdown, or undefined if it is not markdown. A file is markdown if its MIME
 // type is 'text/markdown', or if it has no MIME type and its extension is '.md' or '.markdown'.
 // 'application/octet-stream' is treated as no MIME type, because it only means "binary data".
-function determineMarkdownSourceId(mimeType: string | undefined, extension: string | undefined): MarkdownSourceId | undefined {
+function determineMarkdownSourceId(mimeType: string | undefined, extension: string | undefined): DataFormatSourceId | undefined {
     const mediaType = mimeType?.split(';', 1)[0]?.trim().toLowerCase(); // A type can carry parameters, e.g. 'text/markdown; charset=UTF-8'.
     const isTypeKnown = mediaType != null && mediaType !== '' && mediaType !== 'application/octet-stream';
     if (isTypeKnown) return mediaType === 'text/markdown' ? 'mimeType' : undefined;
@@ -193,7 +191,7 @@ function determineMarkdownSourceId(mimeType: string | undefined, extension: stri
 // Works out the data format of a text file. JSON and JSON Lines are checked first, because their strict syntax makes
 // them safe to recognise from the content alone. Markdown can only be recognised from its MIME type or extension.
 // Anything else is treated as delimited text.
-function determineTextDataFormat(text: string, markdownSourceId: MarkdownSourceId | undefined): DataFormat {
+function determineTextDataFormat(text: string, markdownSourceId: DataFormatSourceId | undefined): { dataFormatId: DataFormatId; dataFormatSourceId: DataFormatSourceId } {
     if (isLikelyJSONFormat(text)) return { dataFormatId: 'json', dataFormatSourceId: 'jsonSyntax' };
     if (isLikelyJSONLinesFormat(text)) return { dataFormatId: 'jsonl', dataFormatSourceId: 'jsonSyntax' };
     if (markdownSourceId != null) return { dataFormatId: 'markdown', dataFormatSourceId: markdownSourceId };

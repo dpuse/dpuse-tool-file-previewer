@@ -6,13 +6,13 @@
         "path": "node_modules/@borewit/text-codec",
         "licenseFile": "downloads/@borewit/text-codec@0.2.3-LICENSE.txt"
     },
-    "@dpuse/dpuse-shared@1.0.209": {
+    "@dpuse/dpuse-shared@1.0.210": {
         "licenses": "MIT",
         "repository": "https://github.com/dpuse/dpuse-shared",
         "publisher": "Jonathan Terrell",
         "email": "terrell.jm@gmail.com",
         "path": "node_modules/@dpuse/dpuse-shared",
-        "licenseFile": "downloads/@dpuse/dpuse-shared@1.0.209-LICENSE.txt"
+        "licenseFile": "downloads/@dpuse/dpuse-shared@1.0.210-LICENSE.txt"
     },
     "@tokenizer/inflate@0.6.0": {
         "licenses": "MIT",

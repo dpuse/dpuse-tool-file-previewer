@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 // ── DPUse Framework
-import type { DataFormatId, FilePreviewResult, PreviewChoices } from '@dpuse/dpuse-shared';
+import type { DataFormatId, FilePreviewResult } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import config from '~/config.json';
@@ -14,7 +14,7 @@ import { Tool } from '@/index';
 // Named stand-ins for 'previewFile's positional parameters, so each test sets only what it is about.
 interface PreviewArguments {
     chunkSize?: number;
-    choices?: PreviewChoices;
+    encodingId?: string; // An encoding the user chose.
     mimeType?: string;
     signal?: AbortSignal;
     url?: string;
@@ -89,14 +89,6 @@ describe('Tool', () => {
             await previewFile({ chunkSize: 1024, url: MARKDOWN_URL });
 
             expect(fetchMock).toHaveBeenCalledWith(MARKDOWN_URL, expect.objectContaining({ headers: { Range: 'bytes=0-1023' } }));
-        });
-
-        it('asks for the chunk size given, even for a file chosen to be read as markdown', async () => {
-            const fetchMock = stubFetchBytes('# Title\n');
-
-            await previewFile({ chunkSize: 1024, choices: { dataFormatId: 'markdown', encodingId: undefined } });
-
-            expect(fetchMock).toHaveBeenCalledWith(CSV_URL, expect.objectContaining({ headers: { Range: 'bytes=0-1023' } }));
         });
 
         it("hands the caller's signal to the fetch, so the caller can stop it", async () => {
@@ -418,7 +410,7 @@ describe('Tool', () => {
         it('counts the replacement characters when the encoding chosen does not fit the text', async () => {
             stubFetchBytes(encodeSingleByte('name,city\nHélène,Orléans\n'));
 
-            const preview = await previewFile({ choices: { dataFormatId: undefined, encodingId: 'utf-8' } });
+            const preview = await previewFile({ encodingId: 'utf-8' });
 
             expect(preview.text).toBe('name,city\nH\u{FFFD}l\u{FFFD}ne,Orl\u{FFFD}ans');
             expect(preview.replacementCharacterCount).toBe(3);
@@ -619,92 +611,86 @@ describe('Tool', () => {
             expect(preview.text).toBe('<?xml version="1.0" encoding="ISO-8859-1"?>\n<name>Hélène</name>');
         });
 
-        it('falls back to UTF-8, with no confidence, when the declared encoding cannot be decoded', async () => {
+        it('decodes as UTF-8 when the declared encoding cannot be decoded, and still reports the declared encoding', async () => {
             stubFetchBytes('<?xml version="1.0" encoding="x-made-up"?>\n<name>Hélène</name>\n');
 
             const preview = await previewFile();
 
-            expect(preview.encodingId).toBe('utf-8');
-            expect(preview.encodingConfidenceLevel).toBeUndefined();
-            expect(preview.encodingSourceId).toBe('fallback');
+            expect(preview.encodingId).toBe('x-made-up');
+            expect(preview.encodingSourceId).toBe('xmlDeclaration');
+            expect(preview.decodedEncodingId).toBe('utf-8');
             expect(preview.text).toBe('<?xml version="1.0" encoding="x-made-up"?>\n<name>Hélène</name>');
         });
     });
 
-    describe('with choices', () => {
-        it('decodes text in the encoding chosen, rather than the one detected', async () => {
+    // A chosen encoding is used to decode the text. Detection still runs and is reported unchanged.
+    describe('with a chosen encoding', () => {
+        it('decodes text in the encoding chosen, and still reports the encoding detected', async () => {
             stubFetchBytes(encodeMacRomanCSV());
 
-            const preview = await previewFile({ choices: { dataFormatId: undefined, encodingId: 'macroman' } });
+            const preview = await previewFile({ encodingId: 'macroman' });
 
+            expect(preview.decodedEncodingId).toBe('macroman');
             expect(preview.encodingId).toBe('macroman');
-            expect(preview.encodingConfidenceLevel).toBe(1);
-            expect(preview.encodingSourceId).toBe('choice');
+            expect(preview.encodingSourceId).toBe('detection');
             expect(preview.text).toContain('Hélène Dubois,Orléans');
         });
 
-        it('still lists the candidates detected when an encoding is chosen', async () => {
+        it('reports the detected encoding, not the chosen one, when they differ', async () => {
+            stubFetchBytes(encodeSingleByte('Tous les êtres humains naissent libres et égaux en dignité et en droits.\n'));
+
+            const preview = await previewFile({ encodingId: 'utf-8' });
+
+            expect(preview.encodingId).toBe('windows-1252');
+            expect(preview.encodingSourceId).toBe('detection');
+            expect(preview.decodedEncodingId).toBe('utf-8');
+        });
+
+        it('still lists the candidates detected', async () => {
             stubFetchBytes(encodeMacRomanCSV());
 
-            const preview = await previewFile({ choices: { dataFormatId: undefined, encodingId: 'macroman' } });
+            const preview = await previewFile({ encodingId: 'macroman' });
 
             expect(preview.encodingCandidates?.[0]?.id).toBe('maclatin2');
             expect(preview.encodingCandidates?.map(({ id }) => id)).toContain('macroman');
         });
 
-        it('falls back to UTF-8, with no confidence, when the encoding chosen cannot be decoded', async () => {
+        it('decodes as UTF-8 when the encoding chosen cannot be decoded', async () => {
             stubFetchBytes('name,age\nAda,36\n');
 
-            const preview = await previewFile({ choices: { dataFormatId: undefined, encodingId: 'maclatin2' } });
+            const preview = await previewFile({ encodingId: 'maclatin2' });
 
-            expect(preview.encodingId).toBe('utf-8');
-            expect(preview.encodingConfidenceLevel).toBeUndefined();
-            expect(preview.encodingSourceId).toBe('fallback');
+            expect(preview.decodedEncodingId).toBe('utf-8');
+            expect(preview.encodingSourceId).toBe('asciiAssumption');
             expect(preview.text).toBe('name,age\nAda,36');
         });
 
-        it('reads text as the format chosen, rather than the one detected', async () => {
-            stubFetchBytes('[1,2,3]\n');
-
-            const preview = await previewFile({ choices: { dataFormatId: 'dtv', encodingId: undefined } });
-
-            expect(preview.dataFormatId).toBe('dtv');
-            expect(preview.dataFormatSourceId).toBe('choice');
-        });
-
-        it('leaves the format to detection when only an encoding is chosen', async () => {
+        it('leaves the format to detection', async () => {
             stubFetchBytes('{"name": "Ada"}\n');
 
-            const preview = await previewFile({ choices: { dataFormatId: undefined, encodingId: 'utf-8' } });
+            const preview = await previewFile({ encodingId: 'utf-8' });
 
             expect(preview.dataFormatId).toBe('json');
+            expect(preview.dataFormatSourceId).toBe('jsonSyntax');
         });
 
-        it('decodes XML in the encoding chosen, rather than the one its declaration names', async () => {
-            stubFetchBytes(encodeSingleByte('<?xml version="1.0" encoding="UTF-8"?>\n<name>Hélène</name>\n'));
+        it('decodes XML in the encoding chosen, and still reports the encoding its declaration names', async () => {
+            stubFetchBytes(encodeSingleByte('<?xml version="1.0" encoding="utf-8"?>\n<name>Hélène</name>\n'));
 
-            const preview = await previewFile({ choices: { dataFormatId: undefined, encodingId: 'iso-8859-1' } });
+            const preview = await previewFile({ encodingId: 'iso-8859-1' });
 
-            expect(preview.encodingId).toBe('iso-8859-1');
-            expect(preview.encodingSourceId).toBe('choice');
-            expect(preview.text).toBe('<?xml version="1.0" encoding="UTF-8"?>\n<name>Hélène</name>');
-        });
-
-        it('reports a binary file as the format chosen', async () => {
-            stubFetchBytes(new TextEncoder().encode('SQLite format 3\0'));
-
-            const preview = await previewFile({ choices: { dataFormatId: 'dtv', encodingId: undefined } });
-
-            expect(preview.fileTypeConfig?.ext).toBe('sqlite');
-            expect(preview.dataFormatId).toBe('dtv');
-            expect(preview.dataFormatSourceId).toBe('choice');
+            expect(preview.decodedEncodingId).toBe('iso-8859-1');
+            expect(preview.encodingId).toBe('utf-8');
+            expect(preview.encodingSourceId).toBe('xmlDeclaration');
+            expect(preview.text).toBe('<?xml version="1.0" encoding="utf-8"?>\n<name>Hélène</name>');
         });
 
         it('leaves a binary file one character per byte, whatever encoding is chosen', async () => {
             stubFetchBytes(PDF_BYTES);
 
-            const preview = await previewFile({ choices: { dataFormatId: undefined, encodingId: 'utf-8' } });
+            const preview = await previewFile({ encodingId: 'utf-8' });
 
+            expect(preview.decodedEncodingId).toBeUndefined();
             expect(preview.encodingId).toBeUndefined();
             expect(preview.text).toBe('%PDF-1.7\n');
         });
@@ -713,8 +699,8 @@ describe('Tool', () => {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function previewFile({ chunkSize, choices, mimeType, signal, url }: PreviewArguments = {}): Promise<FilePreviewResult> {
-    return new Tool().previewFile(url ?? CSV_URL, signal ?? new AbortController().signal, chunkSize, mimeType, choices);
+function previewFile({ chunkSize, encodingId, mimeType, signal, url }: PreviewArguments = {}): Promise<FilePreviewResult> {
+    return new Tool().previewFile(url ?? CSV_URL, signal ?? new AbortController().signal, chunkSize, mimeType, encodingId);
 }
 
 // Answers as the file store does for the start of a larger file: a partial range of a whole file 100 bytes longer. A

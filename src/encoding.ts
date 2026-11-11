@@ -7,7 +7,10 @@ import { isEncodingTypeId, resolveDecoderId } from '@dpuse/dpuse-shared';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export type DecodingEncoding = Omit<EncodingDetectionConfig, 'id'> & { id: string }; // An XML file can name any encoding, not just the ids detection reports.
+export interface DecodingEncoding {
+    confidenceLevel: number | undefined;
+    id: string; // Any encoding name, not just the ids detection reports, because an XML file can name any encoding.
+}
 
 // The encoding to decode a file with, and how it was found.
 export interface EncodingDetection {
@@ -17,7 +20,6 @@ export interface EncodingDetection {
 
 export interface DecodedText {
     encoding: DecodingEncoding; // The encoding actually used, which is UTF-8 when the one asked for cannot be decoded.
-    isFallback: boolean; // True when the encoding asked for cannot be decoded, so UTF-8 was used instead.
     replacementCharacterCount: number;
     text: string;
 }
@@ -76,7 +78,7 @@ export function decodeFileBytes(fileBytes: Uint8Array, encoding: DecodingEncodin
     const decodingEncoding = isFallback ? FALLBACK_ENCODING : encoding;
     const decodedText = new TextDecoder(resolveDecoderId(decodingEncoding.id)).decode(fileBytes, { stream: !isComplete });
     const text = isComplete ? decodedText : dropPartialLastLine(decodedText);
-    return { encoding: decodingEncoding, isFallback, replacementCharacterCount: countReplacementCharacters(text), text };
+    return { encoding: decodingEncoding, replacementCharacterCount: countReplacementCharacters(text), text };
 }
 
 // UTF-8 would turn most binary bytes into replacement characters. Windows-1252 maps every byte to a character, so

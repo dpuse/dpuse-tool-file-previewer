@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-tool-file-previewer",
-    "version": "1.0.134",
+    "version": "1.0.135",
     "private": false,
     "description": "A library that wraps file-type and jschardet to identify a file's format and encoding from its first bytes, and return a decoded sample of its text.",
     "license": "MIT",
@@ -61,7 +61,7 @@
         "test": "node -e \"import('@dpuse/dpuse-development').then(m => m.testProject())\""
     },
     "dependencies": {
-        "@dpuse/dpuse-shared": "^1.0.209",
+        "@dpuse/dpuse-shared": "^1.0.210",
         "file-type": "^22.3.0",
         "jschardet": "^4.1.0"
     },
@@ -71,12 +71,12 @@
         "@types/node": "^26.6.6",
         "@vitest/coverage-v8": "^5.1.0",
         "eslint": "^10.14.0",
-        "prettier": "^3.9.10",
+        "prettier": "^3.10.0",
         "sonda": "^0.14.0",
         "typescript": "^6.0.3",
         "vite": "^8.3.8",
         "vite-plugin-dts": "^5.1.2",
         "vitest": "^5.1.0",
-        "wrangler": "^4.160.0"
+        "wrangler": "^4.160.1"
     }
 }
