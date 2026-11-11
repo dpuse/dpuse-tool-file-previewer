@@ -1,8 +1,5 @@
 # DPUse File Previewer Tool
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![npm version](https://img.shields.io/npm/v/@dpuse/dpuse-tool-file-previewer.svg)](https://www.npmjs.com/package/@dpuse/dpuse-tool-file-previewer)
-
 <!-- OPENING_START -->
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
@@ -10,7 +7,7 @@
 [![npm version](https://img.shields.io/npm/v/@dpuse/dpuse-tool-file-previewer?label=npm)](https://www.npmjs.com/package/@dpuse/dpuse-tool-file-previewer)
 [![CI](https://github.com/dpuse/dpuse-tool-file-previewer/actions/workflows/ci.yml/badge.svg)](https://github.com/dpuse/dpuse-tool-file-previewer/actions/workflows/ci.yml)
 
-...
+A library that wraps file-type and jschardet to identify a file's format and encoding from its first bytes, and return a decoded sample of its text.
 
 [Report a Vulnerability](https://github.com/dpuse/dpuse-tool-file-previewer/security/advisories/new) · [Open an Issue](https://github.com/dpuse/dpuse-tool-file-previewer/issues)
 
@@ -28,7 +25,7 @@ In addition, DPUse provides [Tools](https://www.dpuse.app) used by the applicati
 
 ## Introduction
 
-...
+The File Previewer Tool reads the start of a file and identifies its format and encoding, so a connector can show a preview before the file is parsed. It recognises binary data formats such as Parquet, Arrow, Avro, Excel, OpenDocument and SQLite, decodes text using its byte order mark, its XML declaration or detection from its content, and tells JSON, JSON Lines, markdown and delimited text apart.
 
 <!-- OPENING_END -->
 
@@ -65,7 +62,7 @@ License data is updated each time `npm run document` is run, using [license-chec
 | Dependency                                                             | Version | License(s) | Document                                                              |
 | :--------------------------------------------------------------------- | :-----: | :--------- | :-------------------------------------------------------------------- |
 | [@borewit/text-codec](https://github.com/Borewit/text-codec)           |  0.2.3  | MIT        | [LICENSE](licenses/downloads/@borewit/text-codec@0.2.3-LICENSE.txt)   |
-| [@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)           | 1.0.207 | MIT        | [LICENSE](licenses/downloads/@dpuse/dpuse-shared@1.0.207-LICENSE.txt) |
+| [@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)           | 1.0.209 | MIT        | [LICENSE](licenses/downloads/@dpuse/dpuse-shared@1.0.209-LICENSE.txt) |
 | [@tokenizer/inflate](https://github.com/Borewit/tokenizer-inflate)     |  0.6.0  | MIT        | [LICENSE](licenses/downloads/@tokenizer/inflate@0.6.0-LICENSE.txt)    |
 | [debug](https://github.com/debug-js/debug)                             |  4.4.3  | MIT        | [LICENSE](licenses/downloads/debug@4.4.3-LICENSE.txt)                 |
 | [file-type](https://github.com/sindresorhus/file-type)                 | 22.3.0  | MIT        | [LICENSE](licenses/downloads/file-type@22.3.0-LICENSE.txt)            |
@@ -80,7 +77,7 @@ License data is updated each time `npm run document` is run, using [license-chec
 
 The dependency tree below shows how each package in the table above is reached — direct and transitive — along with its installed version, release date, and update status. A package that does not ship itself, such as one whose parts are bundled separately, is left out and what ships beneath it is shown in its place. Packages flagged ❗ have a newer version available; ⚠️ indicates a package that hasn't been updated in the last 6 months or longer. Neither flag necessarily indicates a problem: we let new releases stabilise before upgrading, and some packages are mature and stable (have limited or no dependencies), so they require no active development.
 
-- **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 1.0.207 — this month: 2026-11-11
+- **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 1.0.209 — this month: 2026-11-11
     - **[file-type](https://github.com/sindresorhus/file-type)** 22.3.0 — this month: 2026-10-29
     - **[valibot](https://github.com/open-circle/valibot)** 1.5.0 — 2 mths ago: 2026-09-09
 - **[file-type](https://github.com/sindresorhus/file-type)** 22.3.0 — this month: 2026-10-29
@@ -106,8 +103,8 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 | Chunk/Module/File                                                       | Composition                                                                                       |
 | :---------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------ |
-| **dist/dpuse-tool-file-previewer.es.js**                                | 1263.5&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;724.2&nbsp;kB&nbsp;·&nbsp;100.0%&nbsp;of&nbsp;the&nbsp;build |
-| &nbsp;&nbsp;&nbsp;&nbsp;jschardet → dist/jschardet.esm.min.js           | `██████████████████░░`&nbsp;89.6%&nbsp;·&nbsp;1131.9&nbsp;kB                                      |
+| **dist/dpuse-tool-file-previewer.es.js**                                | 1263.9&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;724.5&nbsp;kB&nbsp;·&nbsp;100.0%&nbsp;of&nbsp;the&nbsp;build |
+| &nbsp;&nbsp;&nbsp;&nbsp;jschardet → dist/jschardet.esm.min.js           | `██████████████████░░`&nbsp;89.6%&nbsp;·&nbsp;1132.0&nbsp;kB                                      |
 | &nbsp;&nbsp;&nbsp;&nbsp;file-type → source/index.js + 7 more            | `█░░░░░░░░░░░░░░░░░░░`&nbsp;3.4%&nbsp;·&nbsp;42.9&nbsp;kB                                         |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 8 smaller files       | `▒░░░░░░░░░░░░░░░░░░░`&nbsp;3.4%&nbsp;·&nbsp;42.9&nbsp;kB                                         |
 | &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js   | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.8%&nbsp;·&nbsp;22.5&nbsp;kB                                         |
@@ -115,14 +112,15 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 16 smaller files      | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.1%&nbsp;·&nbsp;13.8&nbsp;kB                                         |
 | &nbsp;&nbsp;&nbsp;&nbsp;@tokenizer/inflate → lib/ZipHandler.js + 3 more | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.8%&nbsp;·&nbsp;10.2&nbsp;kB                                         |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 4 smaller files       | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.8%&nbsp;·&nbsp;10.2&nbsp;kB                                         |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                  | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.6%&nbsp;·&nbsp;7.7&nbsp;kB                                          |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts + 2 more                         | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.6%&nbsp;·&nbsp;8.0&nbsp;kB                                          |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 3 smaller files       | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.6%&nbsp;·&nbsp;8.0&nbsp;kB                                          |
 | &nbsp;&nbsp;&nbsp;&nbsp;debug → src/browser.js + 1 more                 | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.4%&nbsp;·&nbsp;5.1&nbsp;kB                                          |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 2 smaller files       | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.4%&nbsp;·&nbsp;5.1&nbsp;kB                                          |
-| &nbsp;&nbsp;&nbsp;&nbsp;@borewit/text-codec → lib/index.js              | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.4%&nbsp;·&nbsp;5.0&nbsp;kB                                          |
+| &nbsp;&nbsp;&nbsp;&nbsp;@borewit/text-codec → lib/index.js              | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.4%&nbsp;·&nbsp;4.9&nbsp;kB                                          |
 | &nbsp;&nbsp;&nbsp;&nbsp;ms → index.js                                   | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.1%&nbsp;·&nbsp;1.6&nbsp;kB                                          |
 | &nbsp;&nbsp;&nbsp;&nbsp;token-types → dist/lib/index.js                 | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.1%&nbsp;·&nbsp;1.2&nbsp;kB                                          |
 | &nbsp;&nbsp;&nbsp;&nbsp;uint8array-extras → index.js                    | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.1%&nbsp;·&nbsp;1.2&nbsp;kB                                          |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)             | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.6%&nbsp;·&nbsp;20.6&nbsp;kB                                         |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)             | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.6%&nbsp;·&nbsp;20.7&nbsp;kB                                         |
 
 Bars show each row's share of its output file. ↳ rows are part of the row above.
 

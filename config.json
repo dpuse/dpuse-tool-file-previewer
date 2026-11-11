@@ -4,7 +4,7 @@
         "en": "DPUse File Previewer"
     },
     "description": {
-        "en": "..."
+        "en": "The File Previewer Tool reads the start of a file and identifies its format and encoding, so a connector can show a preview before the file is parsed. It recognises binary data formats such as Parquet, Arrow, Avro, Excel, OpenDocument and SQLite, decodes text using its byte order mark, its XML declaration or detection from its content, and tells JSON, JSON Lines, markdown and delimited text apart."
     },
     "actionNames": [
         "previewFile"
@@ -13,5 +13,5 @@
     "iconDark": null,
     "statusId": "releaseCandidate",
     "typeId": "tool",
-    "version": "1.0.133"
+    "version": "1.0.134"
 }

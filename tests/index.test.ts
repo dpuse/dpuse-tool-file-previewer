@@ -16,7 +16,6 @@ interface PreviewArguments {
     chunkSize?: number;
     choices?: PreviewChoices;
     mimeType?: string;
-    minimumConfidenceLevel?: number;
     signal?: AbortSignal;
     url?: string;
 }
@@ -282,9 +281,12 @@ describe('Tool', () => {
             expect(await previewFile()).toEqual({
                 bytes: new Uint8Array(0),
                 dataFormatId: undefined,
+                dataFormatSourceId: undefined,
                 encodingId: undefined,
                 encodingConfidenceLevel: undefined,
+                encodingSourceId: undefined,
                 encodingCandidates: undefined,
+                replacementCharacterCount: undefined,
                 fileTypeConfig: undefined,
                 isComplete: true,
                 text: undefined
@@ -370,119 +372,73 @@ describe('Tool', () => {
             expect(preview.encodingConfidenceLevel).toBe(preview.encodingCandidates?.[0]?.confidenceLevel);
         });
 
-        it('lists only the best guess when no encoding reaches the minimum confidence', async () => {
+        it('lists every candidate jschardet detects, best first, however low its confidence', async () => {
             stubFetchBytes(encodeMacRomanCSV());
 
             const preview = await previewFile();
-
-            expect(preview.encodingCandidates).toHaveLength(1);
-        });
-
-        it('lists more candidates, best first, as the minimum confidence is lowered', async () => {
-            stubFetchBytes(encodeMacRomanCSV());
-
-            const preview = await previewFile({ minimumConfidenceLevel: 0.01 });
             const confidenceLevels = preview.encodingCandidates?.map(({ confidenceLevel = 0 }) => confidenceLevel) ?? [];
 
+            expect(confidenceLevels.length).toBeGreaterThan(10);
             expect(preview.encodingCandidates?.map(({ id }) => id)).toContain('macroman');
             expect(confidenceLevels).toEqual(confidenceLevels.toSorted((left, right) => right - left));
-            expect(confidenceLevels.every((confidenceLevel) => confidenceLevel >= 0.01)).toBe(true);
+            expect(confidenceLevels.every((confidenceLevel) => confidenceLevel < 0.2)).toBe(true);
         });
 
         it('lists only encoding ids, in lower case', async () => {
             stubFetchBytes(encodeSingleByte('Все люди рождаются свободными и равными в своем достоинстве и правах.\n'));
 
-            const preview = await previewFile({ minimumConfidenceLevel: 0 });
+            const preview = await previewFile();
 
             expect(preview.encodingCandidates?.every(({ id }) => id === id.toLowerCase())).toBe(true);
         });
     });
 
+    describe('how the encoding was found', () => {
+        it.each([
+            ['a byte order mark', new Uint8Array([0xef, 0xbb, 0xbf, 0x61, 0x0a]), 'byteOrderMark'],
+            ['text that is all ASCII', new TextEncoder().encode('name,age\nAda,36\n'), 'asciiAssumption'],
+            ['text that is valid UTF-8', new TextEncoder().encode('name,city\nHélène,Orléans\n'), 'utf8Validation'],
+            ['text that jschardet identifies', encodeSingleByte('Tous les êtres humains naissent libres et égaux en dignité et en droits.\n'), 'detection']
+        ])('reports %s', async (_description, bytes, encodingSourceId) => {
+            stubFetchBytes(bytes);
+
+            const preview = await previewFile();
+
+            expect(preview.encodingSourceId).toBe(encodingSourceId);
+        });
+
+        it('counts no replacement characters when the encoding fits the text', async () => {
+            stubFetchBytes(encodeSingleByte('Tous les êtres humains naissent libres et égaux en dignité et en droits.\n'));
+
+            const preview = await previewFile();
+
+            expect(preview.replacementCharacterCount).toBe(0);
+        });
+
+        it('counts the replacement characters when the encoding chosen does not fit the text', async () => {
+            stubFetchBytes(encodeSingleByte('name,city\nHélène,Orléans\n'));
+
+            const preview = await previewFile({ choices: { dataFormatId: undefined, encodingId: 'utf-8' } });
+
+            expect(preview.text).toBe('name,city\nH\u{FFFD}l\u{FFFD}ne,Orl\u{FFFD}ans');
+            expect(preview.replacementCharacterCount).toBe(3);
+        });
+    });
+
     describe('text formats', () => {
+        // The JSON and JSON Lines checks have their own tests. These check the preview hands them its text, with the
+        // unfinished last line already dropped, and falls back to delimited text.
         it.each([
-            ['an object', '{"name": "Ada", "age": 36}\n'],
-            ['an empty object', '{}\n'],
-            ['an empty array', '[]\n'],
-            ['an array of objects', '[{"name": "Ada"}, {"name": "Grace"}]\n'],
-            ['an array of numbers', '[1, -2.5, 3e8]\n'],
-            ['an array of literals', '[true, false, null]\n'],
-            ['nested values over several lines', '{\n  "people": [\n    {"name": "Ada", "tags": ["a", "b"]}\n  ]\n}\n'],
-            ['blank lines before it', '  \n\n{"name": "Ada"}\n'],
-            ['escapes in strings', String.raw`{"quote": "\"", "path": "C:\\data", "accent": "\u00e9"}` + '\n'],
-            ['a file cut off after a complete line', '[\n  {"name": "Ada"},\n  {"name": "Gra'],
-            ['minified JSON cut off inside a string', '[{"name":"Ada"},{"name":"Gra'],
-            ['minified JSON cut off inside an escape', '[{"name":"Ada"},{"name":"\\u00'],
-            ['minified JSON cut off after a backslash', '[{"path":"C:\\'],
-            ['minified JSON cut off after a key', '[{"name":"Ada"},{"name"'],
-            ['minified JSON cut off after a colon', '[{"name":"Ada"},{"name":'],
-            ['minified JSON cut off inside a number', '[{"age":36},{"age":4'],
-            ['minified JSON cut off inside an exponent', '[{"distance":3e8},{"distance":1e'],
-            ['minified JSON cut off inside a literal', '[{"isActive":true},{"isActive":fal'],
-            ['a byte order mark', '\u{FEFF}{"name": "Ada"}\n']
-        ])('recognises JSON: %s', async (_description, text) => {
+            ['JSON cut off part way through a line', '[\n  {"name": "Ada"},\n  {"name": "Gra', 'json'],
+            ['JSON Lines cut off part way through a record', '{"name": "Ada"}\n{"name": "Grace"}\n{"name": "Kath', 'jsonl'],
+            ['JSON after a UTF-8 byte order mark', '\u{FEFF}{"name": "Ada"}\n', 'json'],
+            ['text that is neither JSON nor JSON Lines', '[Id],[Name]\n1,"Smith, J"\n', 'dtv']
+        ])('reads %s as %s', async (_description, text, dataFormatId) => {
             stubFetchBytes(text);
 
             const preview = await previewFile();
 
-            expect(preview.dataFormatId).toBe('json');
-        });
-
-        it.each([
-            ['a bracketed CSV header', '[Id],[Name]\n1,"Smith, J"\n'],
-            ['a CSV with a bracketed header and a literal', '[x],flag\n1,true\n'],
-            ['a log line', '[2026-10-22 10:00] INFO user "bob" logged in\n'],
-            ['an INI section', '[section]\nkey="value"\n'],
-            ['a markdown link', '[link](https://dpuse.app) "quoted"\n'],
-            ['a single quoted key', "{'name': 'Ada'}\n"],
-            ['an unquoted key', '{name: "Ada"}\n'],
-            ['a missing colon', '{"name" "Ada"}\n'],
-            ['a trailing comma in an array', '[1, 2,]\n'],
-            ['a trailing comma in an object', '{"name": "Ada",}\n'],
-            ['a number with a leading zero', '[01, 2]\n'],
-            ['a number ending in a point', '[1., 2]\n'],
-            ['a misspelt literal', '[nul, true]\n'],
-            ['a bad escape', String.raw`["\q"]` + '\n'],
-            ['a bad unicode escape', String.raw`["\u00zz"]` + '\n'],
-            ['a mismatched bracket', '{"name": "Ada"]\n'],
-            ['a line break inside a string', '["Ada\nLovelace"]\n'],
-            ['a tab inside a string', '["Ada\tLovelace"]\n'],
-            ['text after the closing bracket', '{"name": "Ada"} and more\n'],
-            ['two values on one line', '{"name": "Ada"} {"name": "Grace"}\n'],
-            ['a bare string', '"Ada"\n'],
-            ['only blank lines', '  \n\n  \n']
-        ])('does not mistake %s for JSON', async (_description, text) => {
-            stubFetchBytes(text);
-
-            const preview = await previewFile();
-
-            expect(preview.dataFormatId).toBe('dtv');
-        });
-
-        it.each([
-            ['an object per line', '{"name": "Ada"}\n{"name": "Grace"}\n'],
-            ['an array per line', '["Ada", 36]\n["Grace", 85]\n'],
-            ['blank lines between records', '{"name": "Ada"}\n\n{"name": "Grace"}\n'],
-            ['Windows line endings', '{"name": "Ada"}\r\n{"name": "Grace"}\r\n'],
-            ['a file cut off part way through a record', '{"name": "Ada"}\n{"name": "Grace"}\n{"name": "Kath']
-        ])('recognises JSON Lines: %s', async (_description, text) => {
-            stubFetchBytes(text);
-
-            const preview = await previewFile();
-
-            expect(preview.dataFormatId).toBe('jsonl');
-        });
-
-        it.each([
-            ['a line that is not JSON', '{"name": "Ada"}\nname,age\n'],
-            ['lines of numbers', '1\n2\n3\n'],
-            ['lines of strings', '"Ada"\n"Grace"\n'],
-            ['lines of null', 'null\nnull\n']
-        ])('does not mistake %s for JSON Lines', async (_description, text) => {
-            stubFetchBytes(text);
-
-            const preview = await previewFile();
-
-            expect(preview.dataFormatId).toBe('dtv');
+            expect(preview.dataFormatId).toBe(dataFormatId);
         });
 
         it.each([
@@ -527,6 +483,20 @@ describe('Tool', () => {
             expect(preview.dataFormatId).toBe(dataFormatId);
         });
 
+        it.each([
+            ['JSON', 'people.txt', undefined, '{"name": "Ada"}\n', 'jsonSyntax'],
+            ['JSON Lines', 'people.txt', undefined, '{"name": "Ada"}\n{"name": "Grace"}\n', 'jsonSyntax'],
+            ['markdown by its MIME type', 'notes.txt', 'text/markdown', MARKDOWN_TEXT, 'mimeType'],
+            ['markdown by its extension', 'notes.md', undefined, MARKDOWN_TEXT, 'extension'],
+            ['delimited text, by default', 'people.csv', undefined, 'name,age\nAda,36\n', 'default']
+        ])('reports how %s was recognised', async (_description, fileName, mimeType, text, dataFormatSourceId) => {
+            stubFetchBytes(text);
+
+            const preview = await previewFile({ ...(mimeType != null && { mimeType }), url: `${URL_PREFIX}/${fileName}` });
+
+            expect(preview.dataFormatSourceId).toBe(dataFormatSourceId);
+        });
+
         it('identifies no file type for text', async () => {
             stubFetchBytes('name,age\nAda,36\n');
 
@@ -544,9 +514,12 @@ describe('Tool', () => {
 
             expect(preview.fileTypeConfig?.ext).toBe(extension);
             expect(preview.dataFormatId).toBe(dataFormatId);
+            expect(preview.dataFormatSourceId).toBe('fileContent');
             expect(preview.encodingId).toBeUndefined();
             expect(preview.encodingConfidenceLevel).toBeUndefined();
+            expect(preview.encodingSourceId).toBeUndefined();
             expect(preview.encodingCandidates).toBeUndefined();
+            expect(preview.replacementCharacterCount).toBeUndefined();
         });
 
         it.each([
@@ -559,6 +532,7 @@ describe('Tool', () => {
 
             expect(preview.fileTypeConfig?.ext).toBe(extension);
             expect(preview.dataFormatId).toBeUndefined();
+            expect(preview.dataFormatSourceId).toBeUndefined();
             expect(preview.encodingId).toBeUndefined();
         });
 
@@ -599,7 +573,9 @@ describe('Tool', () => {
             expect(preview.dataFormatId).toBe('xml');
             expect(preview.encodingId).toBe('ISO-8859-1');
             expect(preview.encodingConfidenceLevel).toBe(1);
+            expect(preview.encodingSourceId).toBe('xmlDeclaration');
             expect(preview.encodingCandidates).toBeUndefined();
+            expect(preview.replacementCharacterCount).toBe(0);
             expect(preview.text).toBe('<?xml version="1.0" encoding="ISO-8859-1"?>\n<name>Hélène</name>');
         });
 
@@ -619,6 +595,7 @@ describe('Tool', () => {
 
             expect(preview.encodingId).toBe('utf-8');
             expect(preview.encodingConfidenceLevel).toBe(1);
+            expect(preview.encodingSourceId).toBe('xmlDefault');
             expect(preview.text).toBe('<?xml version="1.0"?>\n<name>Hélène</name>');
         });
 
@@ -629,6 +606,7 @@ describe('Tool', () => {
 
             expect(preview.fileTypeConfig?.ext).toBe('xml');
             expect(preview.encodingId).toBe('utf-16-le');
+            expect(preview.encodingSourceId).toBe('byteOrderMark');
             expect(preview.text).toBe('<?xml version="1.0" encoding="UTF-16"?>\n<name>Hélène</name>');
         });
 
@@ -648,6 +626,7 @@ describe('Tool', () => {
 
             expect(preview.encodingId).toBe('utf-8');
             expect(preview.encodingConfidenceLevel).toBeUndefined();
+            expect(preview.encodingSourceId).toBe('fallback');
             expect(preview.text).toBe('<?xml version="1.0" encoding="x-made-up"?>\n<name>Hélène</name>');
         });
     });
@@ -660,6 +639,7 @@ describe('Tool', () => {
 
             expect(preview.encodingId).toBe('macroman');
             expect(preview.encodingConfidenceLevel).toBe(1);
+            expect(preview.encodingSourceId).toBe('choice');
             expect(preview.text).toContain('Hélène Dubois,Orléans');
         });
 
@@ -668,8 +648,8 @@ describe('Tool', () => {
 
             const preview = await previewFile({ choices: { dataFormatId: undefined, encodingId: 'macroman' } });
 
-            expect(preview.encodingCandidates).toHaveLength(1);
-            expect(preview.encodingCandidates?.[0]?.id).not.toBe('macroman');
+            expect(preview.encodingCandidates?.[0]?.id).toBe('maclatin2');
+            expect(preview.encodingCandidates?.map(({ id }) => id)).toContain('macroman');
         });
 
         it('falls back to UTF-8, with no confidence, when the encoding chosen cannot be decoded', async () => {
@@ -679,6 +659,7 @@ describe('Tool', () => {
 
             expect(preview.encodingId).toBe('utf-8');
             expect(preview.encodingConfidenceLevel).toBeUndefined();
+            expect(preview.encodingSourceId).toBe('fallback');
             expect(preview.text).toBe('name,age\nAda,36');
         });
 
@@ -688,6 +669,7 @@ describe('Tool', () => {
             const preview = await previewFile({ choices: { dataFormatId: 'dtv', encodingId: undefined } });
 
             expect(preview.dataFormatId).toBe('dtv');
+            expect(preview.dataFormatSourceId).toBe('choice');
         });
 
         it('leaves the format to detection when only an encoding is chosen', async () => {
@@ -704,6 +686,7 @@ describe('Tool', () => {
             const preview = await previewFile({ choices: { dataFormatId: undefined, encodingId: 'iso-8859-1' } });
 
             expect(preview.encodingId).toBe('iso-8859-1');
+            expect(preview.encodingSourceId).toBe('choice');
             expect(preview.text).toBe('<?xml version="1.0" encoding="UTF-8"?>\n<name>Hélène</name>');
         });
 
@@ -714,6 +697,7 @@ describe('Tool', () => {
 
             expect(preview.fileTypeConfig?.ext).toBe('sqlite');
             expect(preview.dataFormatId).toBe('dtv');
+            expect(preview.dataFormatSourceId).toBe('choice');
         });
 
         it('leaves a binary file one character per byte, whatever encoding is chosen', async () => {
@@ -729,8 +713,8 @@ describe('Tool', () => {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function previewFile({ chunkSize, choices, mimeType, minimumConfidenceLevel, signal, url }: PreviewArguments = {}): Promise<FilePreviewResult> {
-    return new Tool().previewFile(url ?? CSV_URL, signal ?? new AbortController().signal, chunkSize, mimeType, minimumConfidenceLevel, choices);
+function previewFile({ chunkSize, choices, mimeType, signal, url }: PreviewArguments = {}): Promise<FilePreviewResult> {
+    return new Tool().previewFile(url ?? CSV_URL, signal ?? new AbortController().signal, chunkSize, mimeType, choices);
 }
 
 // Answers as the file store does for the start of a larger file: a partial range of a whole file 100 bytes longer. A
