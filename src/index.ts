@@ -4,27 +4,10 @@ import { fileTypeFromBuffer, type FileTypeResult } from 'file-type';
 
 // ── DPUse Framework
 import { buildFetchError, extractExtensionFromPath, isEncodingTypeId, resolveDecoderId } from '@dpuse/dpuse-shared';
-import type { DataFormatId, EncodingDetectionConfig } from '@dpuse/dpuse-shared';
-
-// ── Data
+import type { DataFormatId, EncodingDetectionConfig, FilePreviewerInterface, FilePreviewResult, PreviewChoices } from '@dpuse/dpuse-shared';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export interface FilePreviewResult {
-    bytes: Uint8Array;
-    dataFormatId: DataFormatId | undefined;
-    encodingId: string | undefined;
-    encodingConfidenceLevel: number | undefined;
-    encodingCandidates: EncodingDetectionConfig[] | undefined; // Every encoding scoring at least the minimum confidence, best first.
-    fileTypeConfig: FileTypeResult | undefined;
-    isComplete: boolean; // Whether the preview holds the whole file rather than only its start.
-    text: string | undefined;
-}
-// What the user chose in place of what detection found. Either can be left to detection.
-export interface PreviewChoices {
-    dataFormatId: DataFormatId | undefined;
-    encodingId: string | undefined;
-}
 type PreviewContent = Omit<FilePreviewResult, 'isComplete'>;
 type DataFileStructure =
     | 'table' // single native table
@@ -51,8 +34,9 @@ interface DataFileTypeConfig {
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const DEFAULT_MINIMUM_CONFIDENCE_LEVEL = 0.2; // jschardet's own default.
-const DEFAULT_PREVIEW_CHUNK_SIZE = 4096;
-const MARKDOWN_PREVIEW_CHUNK_SIZE = 65_536; // Markdown shows as a document, so enough to hold most READMEs and notes whole.
+// Enough to hold most markdown documents whole, and to give encoding detection a fair sample: a file's first accented
+// character can sit well past its first few kilobytes.
+const DEFAULT_PREVIEW_CHUNK_SIZE = 65_536;
 
 const FALLBACK_ENCODING: EncodingDetectionConfig = { id: 'utf-8', confidenceLevel: undefined };
 
@@ -60,6 +44,8 @@ const FALLBACK_ENCODING: EncodingDetectionConfig = { id: 'utf-8', confidenceLeve
 // so the first bytes always hold it.
 const XML_DECLARATION_BYTE_COUNT = 256;
 const XML_DECLARATION_ENCODING_PATTERN = /^<\?xml\s[^?]*?\bencoding\s*=\s*(["'])([A-Za-z][\w.:-]*)\1/;
+
+const CONTROL_CHARACTER_PATTERN = /(?![\t\n\r])\p{Cc}/gu; // C0 controls, DEL and C1 controls, apart from the tab and the line breaks.
 
 const JSON_LITERALS = ['false', 'null', 'true'];
 const JSON_WHITESPACE_CHARACTERS = new Set([' ', '\t', '\n', '\r']);
@@ -89,8 +75,7 @@ const AUTO_DETECTABLE_DATA_FILE_TYPE_MAP: Record<string, DataFileTypeConfig> = {
 
 // ── Tools ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export class Tool {
-    // 'minimumConfidenceLevel' (0 to 1) sets which encodings the candidate list includes. The best is always included.
+export class Tool implements FilePreviewerInterface {
     async previewFile(
         url: string,
         signal: AbortSignal,
@@ -99,22 +84,44 @@ export class Tool {
         minimumConfidenceLevel = DEFAULT_MINIMUM_CONFIDENCE_LEVEL,
         choices?: PreviewChoices
     ): Promise<FilePreviewResult> {
-        // A format the user chose decides, so a file chosen to be read as markdown is read in the larger markdown chunk.
-        const chosenDataFormatId = choices?.dataFormatId;
-        const isMarkdown = chosenDataFormatId == null ? determineIsMarkdown(mimeType, extractExtensionFromPath(new URL(url).pathname)?.toLowerCase()) : chosenDataFormatId === 'markdown';
-        const requestedByteCount = chunkSize ?? (isMarkdown ? MARKDOWN_PREVIEW_CHUNK_SIZE : DEFAULT_PREVIEW_CHUNK_SIZE);
+        const isMarkdown = determineIsMarkdown(mimeType, extractExtensionFromPath(new URL(url).pathname)?.toLowerCase());
+        const requestedByteCount = chunkSize ?? DEFAULT_PREVIEW_CHUNK_SIZE;
         const response = await fetch(encodeURI(url), { headers: { Range: `bytes=0-${String(requestedByteCount - 1)}` }, signal }); // Range ends are inclusive.
         // A file with no bytes has no first byte to send, so the store answers 'Range Not Satisfiable' (416).
         if (response.status === 416) return { ...(await previewFileBytes(new Uint8Array(0), isMarkdown, minimumConfidenceLevel, true)), isComplete: true };
-        if (!response.ok) throw await buildFetchError(response, `Failed to fetch '${url}' file.`, 'dpuse-tool-file-previewer.previewRemoteFile');
+        if (!response.ok) throw await buildFetchError(response, `Failed to fetch '${url}' file.`, 'dpuse-tool-file-previewer.Tool.previewFile');
 
-        const fileBytes = new Uint8Array(await response.arrayBuffer());
-        const isComplete = determineIsComplete(response, fileBytes.length, requestedByteCount);
+        const { fileBytes, isCutShort } = await readResponseBytes(response, requestedByteCount);
+        const isComplete = !isCutShort && determineIsComplete(response, fileBytes.length, requestedByteCount);
         return { ...(await previewFileBytes(fileBytes, isMarkdown, minimumConfidenceLevel, isComplete, choices)), isComplete };
     }
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// A store that ignores the range sends the whole file, so reading stops once there is more than was asked for. One read
+// past the requested size tells a file of exactly that size, which then ends, from a longer one.
+async function readResponseBytes(response: Response, requestedByteCount: number): Promise<{ fileBytes: Uint8Array; isCutShort: boolean }> {
+    const chunks: Uint8Array[] = [];
+    let byteCount = 0;
+    const reader = response.body?.getReader();
+    while (reader != null && byteCount <= requestedByteCount) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+        byteCount += value.length;
+    }
+    const isCutShort = byteCount > requestedByteCount;
+    if (isCutShort) await reader?.cancel();
+
+    const fileBytes = new Uint8Array(byteCount);
+    let offset = 0;
+    for (const chunk of chunks) {
+        fileBytes.set(chunk, offset);
+        offset += chunk.length;
+    }
+    return { fileBytes: isCutShort ? fileBytes.subarray(0, requestedByteCount) : fileBytes, isCutShort };
+}
 
 // The store reports the whole file's size in 'Content-Range'. Without it, a store that ignored the range sent the whole
 // file, and one that sent fewer bytes than asked for reached the end.
@@ -148,20 +155,13 @@ async function previewFileBytes(
     // Not identified by its content, so assumed to be text. JSON and JSON Lines are checked first, because their strict
     // syntax makes the check reliable whatever the extension. Otherwise the MIME type or extension tells markdown apart,
     // which content cannot, and the rest is taken as delimited text until parsing it shows otherwise.
-    const encodingCandidates = determineEncodings(fileBytes, minimumConfidenceLevel);
-    // TODO: Decode with the first candidate the browser can decode, rather than falling back to UTF-8 when the best
-    // candidate cannot be decoded. Today the best candidate always goes to 'decodeFileBytes', and if 'TextDecoder'
-    // rejects it (one of the 43 encodings jschardet detects that browsers cannot decode, e.g. 'maclatin2' or
-    // 'cp437'), the file is decoded and reported as UTF-8, with no confidence. Found in October 2026 with the small
-    // mostly-ASCII Mac Roman CSV in this project's tests: jschardet's best guess was 'maclatin2' (undecodable) and
-    // its second, at the same 0.04 confidence, the correct 'macroman' (decodable as 'macintosh'). Taking the first
-    // candidate whose 'resolveDecoderId' is a name 'TextDecoder' accepts would have decoded it correctly. It would
-    // not help where the best guess is decodable but wrong, e.g. dpuse-shared's 'macroman.csv' sample, read as
-    // 'iso-8859-1'. Points to settle first: whether to look only at candidates above 'minimumConfidenceLevel' or
-    // at the full list jschardet returns (in the test, the best was the only one above the default 0.2), and
-    // whether 'encodingId' should report the candidate actually used, which may then differ from the first entry
-    // in 'encodingCandidates'.
-    const decodedResult = decodeFileBytes(fileBytes, constructChosenEncoding(choices) ?? encodingCandidates[0] ?? FALLBACK_ENCODING, isComplete);
+    const detectedEncodings = determineEncodings(fileBytes, isComplete);
+    const encodingCandidates = detectedEncodings.filter(({ confidenceLevel = 0 }, index) => index === 0 || confidenceLevel >= minimumConfidenceLevel);
+    // jschardet detects 43 encodings the browser cannot decode, such as 'maclatin2', and can rank one first with a
+    // decodable one close behind. The first the browser can decode is used, from the full list, as the right one is often
+    // below the minimum confidence. 'encodingId' reports the one used, which may not be the first candidate.
+    const decodingEncoding = constructChosenEncoding(choices) ?? detectedEncodings.find(({ id }) => isEncodingDecodable(id)) ?? FALLBACK_ENCODING;
+    const decodedResult = decodeFileBytes(fileBytes, decodingEncoding, isComplete);
     return {
         bytes: fileBytes,
         dataFormatId: choices?.dataFormatId ?? determineTextDataFormatId(decodedResult.text, isMarkdown),
@@ -177,7 +177,9 @@ async function previewFileBytes(
 // each has its own reader their bytes are shown as text one character per byte, with no encoding reported, even one the
 // user chose.
 function previewDetectedFileType(fileBytes: Uint8Array, fileTypeConfig: FileTypeResult, isComplete: boolean, choices?: PreviewChoices): PreviewContent {
-    const detectedDataFormatId = Object.hasOwn(AUTO_DETECTABLE_DATA_FILE_TYPE_MAP, fileTypeConfig.ext) ? AUTO_DETECTABLE_DATA_FILE_TYPE_MAP[fileTypeConfig.ext]?.dataFormatId : undefined; // A type that is not data, such as a PDF or an image, has no format.
+    const detectedDataFormatId = Object.hasOwn(AUTO_DETECTABLE_DATA_FILE_TYPE_MAP, fileTypeConfig.ext)
+        ? AUTO_DETECTABLE_DATA_FILE_TYPE_MAP[fileTypeConfig.ext]?.dataFormatId
+        : undefined; // A type that is not data, such as a PDF or an image, has no format.
     const dataFormatId = choices?.dataFormatId ?? detectedDataFormatId;
     if (fileTypeConfig.ext === 'xml') {
         const encoding = constructChosenEncoding(choices) ?? { id: determineXMLEncodingId(fileBytes), confidenceLevel: 1 };
@@ -206,30 +208,40 @@ function previewDetectedFileType(fileBytes: Uint8Array, fileTypeConfig: FileType
 
 // Binary bytes are not valid UTF-8, which would show most of them as replacement characters. Windows-1252 gives every
 // byte a character, so readable parts such as 'PAR1' or a column name still show. Control characters, which would
-// disturb the display, are shown as a middle dot, apart from the tab and the line breaks.
+// disturb the display, are shown as a middle dot.
 function decodeBytesAsCharacters(fileBytes: Uint8Array): string {
-    const characters = Array.from(new TextDecoder('windows-1252').decode(fileBytes), (character) => {
-        const codePoint = character.codePointAt(0) ?? 0;
-        const isControl = (codePoint < 0x20 && character !== '\t' && character !== '\n' && character !== '\r') || (codePoint >= 0x7f && codePoint <= 0x9f);
-        return isControl ? '·' : character;
-    });
-    return characters.join('');
+    return new TextDecoder('windows-1252').decode(fileBytes).replaceAll(CONTROL_CHARACTER_PATTERN, '·');
 }
 
 /**
- * Determine the likely encodings from file bytes, best first, keeping those scoring at least the minimum confidence and
- * always the best. Confidence runs from 0 to 1, as jschardet reports it. A byte order mark settles it outright.
+ * Determine the likely encodings from file bytes, best first. Confidence runs from 0 to 1, as jschardet reports it. A
+ * byte order mark settles it outright. Bytes that are all ASCII give no evidence, because the first other character may
+ * come later in the file, so none is listed and the text is decoded as UTF-8, reported as assumed. Other bytes that are
+ * valid UTF-8 are almost certainly UTF-8, as text in other encodings rarely forms valid UTF-8 sequences. Only the rest
+ * goes to jschardet, which is slower and less certain.
  */
-function determineEncodings(fileBytes: Uint8Array, minimumConfidenceLevel: number): EncodingDetectionConfig[] {
+function determineEncodings(fileBytes: Uint8Array, isComplete: boolean): EncodingDetectionConfig[] {
     const byteOrderMarkEncoding = determineByteOrderMarkEncoding(fileBytes);
     if (byteOrderMarkEncoding != null) return [byteOrderMarkEncoding];
+    if (fileBytes.every((byte) => byte < 0x80)) return [];
+    if (isValidUTF8(fileBytes, isComplete)) return [{ confidenceLevel: 1, id: 'utf-8' }];
     const detections = detectAll(fileBytes, { minimumThreshold: 0 });
     const candidates: EncodingDetectionConfig[] = [];
     for (const { confidence, encoding } of detections) {
         const encodingId = encoding?.toLowerCase(); // jschardet mixes cases, e.g. 'Windows-1251'; encoding ids are lower case.
         if (encodingId != null && isEncodingTypeId(encodingId)) candidates.push({ confidenceLevel: confidence, id: encodingId });
     }
-    return candidates.filter(({ confidenceLevel = 0 }, index) => index === 0 || confidenceLevel >= minimumConfidenceLevel);
+    return candidates;
+}
+
+// A preview cut short can end part-way through a character. Streaming holds those last bytes back rather than failing.
+function isValidUTF8(fileBytes: Uint8Array, isComplete: boolean): boolean {
+    try {
+        new TextDecoder('utf-8', { fatal: true }).decode(fileBytes, { stream: !isComplete });
+        return true;
+    } catch {
+        return false;
+    }
 }
 
 function determineByteOrderMarkEncoding(fileBytes: Uint8Array): EncodingDetectionConfig | undefined {
@@ -245,8 +257,23 @@ function determineXMLEncodingId(fileBytes: Uint8Array): string {
     return determineByteOrderMarkEncoding(fileBytes)?.id ?? XML_DECLARATION_ENCODING_PATTERN.exec(declaration)?.[2] ?? 'utf-8';
 }
 
+// An encoding the user chose is certain, as one an XML declaration states is.
+function constructChosenEncoding(choices: PreviewChoices | undefined): DecodingEncoding | undefined {
+    return choices?.encodingId == null ? undefined : { id: choices.encodingId, confidenceLevel: 1 };
+}
+
+function isEncodingDecodable(encodingId: string): boolean {
+    try {
+        new TextDecoder(resolveDecoderId(encodingId));
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 // TODO: Consider decoding the encodings browsers cannot. jschardet detects 86 encodings, but the browser's
-// 'TextDecoder' decodes only 43 of them, so a file in one of the other 43 falls back to UTF-8 and comes out garbled.
+// 'TextDecoder' decodes only 43 of them, so a file in one of the other 43 is decoded with another candidate, or UTF-8,
+// and comes out garbled.
 // Findings from October 2026, tested on dpuse-shared's encoding samples:
 // - iconv-lite 0.7.3 decodes 31 of the 43 exactly: UTF-16 with a byte-order mark, UTF-32, UTF-7, the DOS code pages
 //   (cp437, cp850, cp852 and others), MacGreek, MacIceland, MacLatin2, MacTurkish, koi8-t, KZ1048, ptcp154 and
@@ -261,22 +288,25 @@ function determineXMLEncodingId(fileBytes: Uint8Array): string {
 // prompted when jschardet's confidence is low, is the better next step.
 /**
  * Decode file bytes to text. A preview cut short ends part-way through a line, which is dropped. A whole file keeps its
- * last line.
+ * last line. The line is dropped from the text, not the bytes, because in UTF-16 a line break is two bytes and a byte
+ * that looks like one can be half of another character. Streaming holds back a character cut in two at the end.
  */
-// An encoding the user chose is certain, as one an XML declaration states is.
-function constructChosenEncoding(choices: PreviewChoices | undefined): DecodingEncoding | undefined {
-    return choices?.encodingId == null ? undefined : { id: choices.encodingId, confidenceLevel: 1 };
+function decodeFileBytes(fileBytes: Uint8Array, encoding: DecodingEncoding, isComplete: boolean): { encoding: DecodingEncoding; text: string } {
+    const decodeOptions = { stream: !isComplete };
+    try {
+        const text = new TextDecoder(resolveDecoderId(encoding.id)).decode(fileBytes, decodeOptions);
+        return { encoding, text: isComplete ? text : dropPartialLastLine(text) };
+    } catch {
+        const text = new TextDecoder(FALLBACK_ENCODING.id, { fatal: false }).decode(fileBytes, decodeOptions);
+        return { encoding: FALLBACK_ENCODING, text: isComplete ? text : dropPartialLastLine(text) };
+    }
 }
 
-function decodeFileBytes(fileBytes: Uint8Array, encoding: DecodingEncoding, isComplete: boolean): { encoding: DecodingEncoding; text: string } {
-    const textBytes = isComplete ? fileBytes : truncateData(fileBytes);
-    try {
-        const text = new TextDecoder(resolveDecoderId(encoding.id)).decode(textBytes);
-        return { encoding, text };
-    } catch {
-        const text = new TextDecoder(FALLBACK_ENCODING.id, { fatal: false }).decode(textBytes);
-        return { encoding: FALLBACK_ENCODING, text };
-    }
+// Cuts before the last CRLF, CR or LF. Text with no line break is kept whole.
+function dropPartialLastLine(text: string): string {
+    const lineBreakIndex = Math.max(text.lastIndexOf('\n'), text.lastIndexOf('\r'));
+    if (lineBreakIndex === -1) return text;
+    return text.slice(0, text.charAt(lineBreakIndex) === '\n' && text.charAt(lineBreakIndex - 1) === '\r' ? lineBreakIndex - 1 : lineBreakIndex);
 }
 
 function determineIsMarkdown(mimeType: string | undefined, extension: string | undefined): boolean {
@@ -403,26 +433,4 @@ function isJSONNumber(word: string): boolean {
     } catch {
         return false;
     }
-}
-
-/**
- * Returns the leading bytes up to (but not including) the last CRLF (13,10),
- * CR (13), or LF (10) byte sequence. Returns all bytes if no end-of-line
- * sequence is found.
- */
-function truncateData(fileBytes: Uint8Array): Uint8Array {
-    let transformedData = fileBytes;
-    const characterCount = transformedData.length;
-    for (let characterIndex = characterCount - 1; characterIndex >= 0; characterIndex--) {
-        const character = transformedData[characterIndex];
-        if (character === 10 && characterIndex > 0 && transformedData[characterIndex - 1] === 13) {
-            transformedData = transformedData.slice(0, characterIndex - 1);
-            break;
-        }
-        if (character === 10 || character === 13) {
-            transformedData = transformedData.slice(0, characterIndex);
-            break;
-        }
-    }
-    return transformedData;
 }
