@@ -77,14 +77,6 @@ async function readResponseBytes(response: Response, requestedByteCount: number)
     return { fileBytes: isCutShort ? fileBytes.subarray(0, requestedByteCount) : fileBytes, isCutShort };
 }
 
-// Returns true if the preview holds the whole file. The 'Content-Range' header gives the file's full size. Without that
-// header, a 200 response holds the whole file, and a 206 response with fewer bytes than requested has reached the end
-// of the file.
-function determineIsComplete(response: Response, byteCount: number, requestedByteCount: number): boolean {
-    const totalByteCount = /\/(\d+)$/.exec(response.headers.get('content-range') ?? '')?.[1];
-    return totalByteCount == null ? response.status !== 206 || byteCount < requestedByteCount : byteCount >= Number(totalByteCount);
-}
-
 async function previewFileBytes(
     fileBytes: Uint8Array,
     markdownSourceId: DataFormatSourceId | undefined,
@@ -176,6 +168,14 @@ function constructEncodingResult(
         encodingSourceId: detectedEncoding.sourceId,
         replacementCharacterCount: decodedText.replacementCharacterCount
     };
+}
+
+// Returns true if the preview holds the whole file. The 'Content-Range' header gives the file's full size. Without that
+// header, a 200 response holds the whole file, and a 206 response with fewer bytes than requested has reached the end
+// of the file.
+function determineIsComplete(response: Response, byteCount: number, requestedByteCount: number): boolean {
+    const totalByteCount = /\/(\d+)$/.exec(response.headers.get('content-range') ?? '')?.[1];
+    return totalByteCount == null ? response.status !== 206 || byteCount < requestedByteCount : byteCount >= Number(totalByteCount);
 }
 
 // Returns how the file was recognised as markdown, or undefined if it is not markdown. A file is markdown if its MIME

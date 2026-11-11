@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-11-11T14:50:27.202Z",
+    "generatedAt": "2026-11-11T16:53:14.678Z",
     "integration": "vite",
     "sources": false,
     "gzip": true,
@@ -21,7 +21,7 @@
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 21149,
+      "uncompressed": 21148,
       "gzip": 1150,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
@@ -30,8 +30,8 @@
       "kind": "asset",
       "name": "dist/dpuse-tool-file-previewer.es.js",
       "type": "script",
-      "uncompressed": 1293923,
-      "gzip": 741850,
+      "uncompressed": 1293904,
+      "gzip": 741846,
       "brotli": 0
     },
     {
@@ -56,15 +56,15 @@
       "name": "node_modules/@dpuse/dpuse-shared/dist/dpuse-shared.es.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 62796
+      "uncompressed": 63574
     },
     {
       "kind": "chunk",
       "name": "node_modules/@dpuse/dpuse-shared/dist/dpuse-shared.es.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 23020,
-      "gzip": 4805,
+      "uncompressed": 23002,
+      "gzip": 4797,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
@@ -333,7 +333,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 1159155,
-      "gzip": 704647,
+      "gzip": 704651,
       "brotli": 0,
       "parent": "dist/dpuse-tool-file-previewer.es.js"
     },
